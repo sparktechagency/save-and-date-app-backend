@@ -1,4 +1,4 @@
-import { IMessage } from '../message/message.interface';
+import { FilterQuery } from 'mongoose';
 import { Message } from '../message/message.model';
 import { IChat } from './chat.interface';
 import { Chat } from './chat.model';
@@ -15,39 +15,39 @@ const createChatToDB = async (payload: IChat): Promise<IChat> => {
     return chat;
 }
 
-const getChatFromDB = async (user: any, search: string): Promise<IChat[]> => {
+const getChatFromDB = async (user: { id: string }, search: string): Promise<IChat[]> => {
+    const query: FilterQuery<IChat> = {
+        participants: user.id,
+    };
 
-    const chats: any = await Chat.find({ participants: { $in: [user.id] } })
+    // Populate only the matched participants
+    const chats = await Chat.find(query)
         .populate({
             path: 'participants',
             select: '_id name profile',
-            match: {
-                _id: { $ne: user.id },
-                ...(search && { name: { $regex: search, $options: 'i' } }),
-            }
+            match: search ? { name: { $regex: search, $options: 'i' }, _id: { $ne: user.id } } : { _id: { $ne: user.id } },
         })
-        .select('participants status');
+        .select('participants status')
+        .lean();
 
-    const filteredChats = chats?.filter(
-        (chat: any) => chat?.participants?.length > 0
-    );
+    // Remove chats where participants array is empty after filtering
+    const filteredChats = chats.filter(chat => chat.participants.length > 0);
 
-    const chatList: IChat[] = await Promise.all(
-        filteredChats?.map(async (chat: any) => {
-            const data = chat?.toObject();
+    // Get all last messages in a single query
+    const chatIds = filteredChats.map(chat => chat._id);
+    const lastMessages = await Message.find({ chatId: { $in: chatIds } })
+        .sort({ createdAt: -1 })
+        .select('text offer createdAt sender chatId')
+        .lean();
 
-            const lastMessage: IMessage | null = await Message.findOne({ chatId: chat?._id })
-                .sort({ createdAt: -1 })
-                .select('text offer createdAt sender');
+    // Map last messages to their respective chats
+    const lastMessageMap = new Map(lastMessages.map(msg => [msg.chatId.toString(), msg]));
 
-            return {
-                ...data,
-                lastMessage: lastMessage || null,
-            };
-        })
-    );
-
-    return chatList;
+    // Merge last messages with chat data
+    return filteredChats.map(chat => ({
+        ...chat,
+        lastMessage: lastMessageMap.get(chat._id.toString()) || null,
+    }));
 };
 
 export const ChatService = { createChatToDB, getChatFromDB };

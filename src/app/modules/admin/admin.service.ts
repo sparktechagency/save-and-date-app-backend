@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import ApiError from '../../../errors/ApiError';
+import ApiError from '../../../errors/ApiErrors';
 import { IUser } from '../user/user.interface';
 import { User } from '../user/user.model';
 

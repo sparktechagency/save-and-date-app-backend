@@ -1,9 +1,10 @@
 import { z } from "zod"
+import { checkZodIDValidation } from "../../../shared/checkZodIDValidation"
 
 const reviewZodSchema = z.object({
     body: z.object({
-        barber: z.string({ required_error: 'Barber is required' }),
-        service: z.string({ required_error: 'Service is required' }),
+        vendor: checkZodIDValidation("Vendor Object ID is Required"),
+        package: checkZodIDValidation("Package Object ID is Required"),
         rating: z.number({ required_error: 'Rating is required' }),
         comment: z.string({ required_error: 'Comment is required' }),
     })  

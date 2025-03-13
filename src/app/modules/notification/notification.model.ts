@@ -18,7 +18,7 @@ const notificationSchema = new Schema<INotification, NotificationModel>(
         },
         screen: {
             type: String,
-            required: false
+            required: true
         },
         read: {
             type: Boolean,

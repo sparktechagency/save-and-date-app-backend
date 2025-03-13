@@ -6,72 +6,67 @@ import mongoose from "mongoose";
 import unlinkFile from "../../../shared/unlinkFile";
 import QueryBuilder from "../../../helpers/QueryBuilder";
 import { JwtPayload } from "jsonwebtoken";
+import { checkMongooseIDValidation } from "../../../shared/checkMongooseIDValidation";
 
-const createPackageInDB = async(payload: IPackage): Promise<IPackage | null>=>{
+const createPackageInDB = async (payload: IPackage): Promise<IPackage | null> => {
 
     const result = await Package.create(payload);
-    if(!result){
+    if (!result) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to created Package")
     }
     return result;
 }
 
-const getPackageFromDB = async(user: JwtPayload, query: Record<string, any>): Promise<{packages:IPackage[], pagination: any}>=>{
-    const result = new QueryBuilder(Package.find({ vendor: user.id, status: "Active"}), query).paginate();
+const getPackageFromDB = async (user: JwtPayload, query: Record<string, any>): Promise<{ packages: IPackage[], pagination: any }> => {
+    const result = new QueryBuilder(Package.find({ vendor: user.id, status: "Active" }), query).paginate();
     const packages = await result.queryModel.populate("category");
     const pagination = await result.getPaginationInfo();
 
     return { packages, pagination };
 }
 
-const updatePackageToDB = async(id: string, payload: IPackage): Promise<IPackage | null>=>{
-    if(!mongoose.Types.ObjectId.isValid(id)){
-        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid ID")
-    }
+const updatePackageToDB = async (id: string, payload: IPackage): Promise<IPackage | null> => {
+    checkMongooseIDValidation(id);
 
     const result = await Package.findByIdAndUpdate(
-        {_id: id},
+        { _id: id },
         payload,
-        {new: true}
+        { new: true }
     );
 
-    if(payload.image && result?.image){
+    if (payload.image && result?.image) {
         unlinkFile(result.image);
     }
 
-    if(!result){
+    if (!result) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to updated Package")
     }
 
     return result;
 }
 
-const deletePackageToDB = async(id: string): Promise<IPackage | null>=>{
-    if(!mongoose.Types.ObjectId.isValid(id)){
-        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid ID")
-    }
+const deletePackageToDB = async (id: string): Promise<IPackage | null> => {
+    checkMongooseIDValidation(id);
 
     const result = await Package.findByIdAndUpdate(
-        {_id: id},
-        {status: "Delete"},
-        {new: true}
+        { _id: id },
+        { status: "Delete" },
+        { new: true }
     );
 
-    if(!result){
+    if (!result) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to deleted Package")
     }
 
     return result;
 }
 
-const packageDetailsFromDB = async(id: string): Promise<IPackage | null>=>{
-    if(!mongoose.Types.ObjectId.isValid(id)){
-        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid ID")
-    }
+const packageDetailsFromDB = async (id: string): Promise<IPackage | null> => {
+    checkMongooseIDValidation(id);
 
     const result = await Package.findById(id);
 
-    if(!result){
+    if (!result) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to get Package Details")
     }
 

@@ -1,6 +1,8 @@
 import { Schema, model } from "mongoose";
 import { IReservation, ReservationModel } from "./reservation.interface";
 import { randomBytes } from "crypto";
+import { RESERVATION } from "../../../enums/reservation";
+import { PAYMENT } from "../../../enums/payment";
 
 const ReservationSchema = new Schema<IReservation, ReservationModel>(
     {
@@ -21,13 +23,13 @@ const ReservationSchema = new Schema<IReservation, ReservationModel>(
         },
         status: {
             type: String,
-            enum: ["Pending", "Accepted", "Rejected", "Canceled", "Completed"],
-            default: "Pending"
+            enum: Object.values(RESERVATION),
+            default: RESERVATION.Pending
         },
         paymentStatus: {
             type: String,
-            enum: [ "Pending", "Paid", "Refunded"],
-            default: "Pending"
+            enum: Object.values(PAYMENT),
+            default: PAYMENT.Pending
         },
         price: {
             type: Number,

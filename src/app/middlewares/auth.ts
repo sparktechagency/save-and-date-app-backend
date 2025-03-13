@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { Secret } from 'jsonwebtoken';
+import { JwtPayload, Secret } from 'jsonwebtoken';
 import config from '../../config';
 import { jwtHelper } from '../../helpers/jwtHelper';
 import ApiError from '../../errors/ApiErrors';
@@ -22,7 +22,7 @@ const auth = (...roles: string[]) => async (req: Request, res: Response, next: N
             );
 
             //set user to header
-            req.user = verifyUser;
+            req.user = verifyUser as JwtPayload;
   
             //guard user
             if (roles.length && !roles.includes(verifyUser.role)) {

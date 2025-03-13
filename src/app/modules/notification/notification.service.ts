@@ -1,22 +1,23 @@
 import { JwtPayload } from 'jsonwebtoken';
 import { INotification } from './notification.interface';
 import { Notification } from './notification.model';
+import { FilterQuery } from 'mongoose';
+import QueryBuilder from '../../../helpers/QueryBuilder';
 
 // get notifications
-const getNotificationFromDB = async ( user: JwtPayload ): Promise<INotification> => {
-
-    const result = await Notification.find({ receiver: user.id }).populate({
-        path: 'sender',
-        select: 'name profile',
-    });
+const getNotificationFromDB = async ( user: JwtPayload, query: FilterQuery<any> ): Promise<Object> => {
+    const result = new QueryBuilder(Notification.find({ receiver: user.id }), query).paginate();
+    const notifications = await result.queryModel;
+    const pagination = await result.getPaginationInfo();
 
     const unreadCount = await Notification.countDocuments({
         receiver: user.id,
         read: false,
     });
 
-    const data: any = {
-        result,
+    const data: Record<string ,any> = {
+        notifications,
+        pagination,
         unreadCount
     };
 
@@ -34,9 +35,12 @@ const readNotificationToDB = async ( user: JwtPayload): Promise<INotification | 
 };
 
 // get notifications for admin
-const adminNotificationFromDB = async () => {
-    const result = await Notification.find({ type: 'ADMIN' });
-    return result;
+const adminNotificationFromDB = async (query: FilterQuery<any>): Promise<{notifications: INotification[], pagination: any}> => {
+
+    const result = new QueryBuilder(Notification.find({ type: "ADMIN" }), query).paginate();
+    const notifications = await result.queryModel;
+    const pagination = await result.getPaginationInfo();
+    return {notifications, pagination};
 };
 
 // read notifications only for admin

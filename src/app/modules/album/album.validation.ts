@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { checkValidID } from '../../../shared/checkValidID';
+import { checkValidID } from '../../../shared/checkZodIDValidation';
 
 export const albumZodValidationSchema = z.object({
     body: z.object({

@@ -3,7 +3,7 @@ import { IReservation } from "./reservation.interface";
 import { Reservation } from "./reservation.model";
 import { StatusCodes } from "http-status-codes";
 import ApiError from "../../../errors/ApiErrors";
-import mongoose from "mongoose";
+import mongoose, { FilterQuery } from "mongoose";
 import { sendNotifications } from "../../../helpers/notificationsHelper";
 import { Package } from "../package/package.model";
 import QueryBuilder from "../../../helpers/QueryBuilder";
@@ -45,7 +45,7 @@ const createReservationToDB = async (payload: IReservation): Promise<IReservatio
     }
 };
 
-const reservationsFromDB = async (user: JwtPayload, query: Record<string, any>): Promise<{ reservations: IReservation[], pagination: any }> => {
+const reservationsFromDB = async (user: JwtPayload, query: FilterQuery<any>): Promise<{ reservations: IReservation[], pagination: any }> => {
     const result = new QueryBuilder(Reservation.find({ vendor: user.id }), query).paginate().filter();
     const reservations = await result.queryModel.populate("service");
     const pagination = await result.getPaginationInfo();

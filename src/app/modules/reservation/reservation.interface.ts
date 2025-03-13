@@ -1,12 +1,14 @@
 import { Model, Types } from "mongoose"
+import { RESERVATION } from "../../../enums/reservation";
+import { PAYMENT } from "../../../enums/payment";
 
 export type IReservation = {
     _id?: Types.ObjectId;
     customer: Types.ObjectId;
     vendor: Types.ObjectId;
     package: Types.ObjectId;
-    status: "Pending" | "Accepted" | "Rejected" | "Canceled" | "Completed";
-    paymentStatus: "Pending" | "Paid" | "Refunded";
+    status: RESERVATION;
+    paymentStatus: PAYMENT;
     price: number;
     txid: string;
 }

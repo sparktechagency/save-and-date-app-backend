@@ -3,10 +3,10 @@ import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { StatusCodes } from 'http-status-codes';
 import { NotificationService } from './notification.service';
+import { FilterQuery } from 'mongoose';
 
-const getNotificationFromDB = catchAsync( async (req: Request, res: Response) => {
-    const user = req.user;
-    const result = await NotificationService.getNotificationFromDB(user);
+const getNotificationFromDB = catchAsync(async (req: Request, res: Response) => {
+    const result = await NotificationService.getNotificationFromDB(req.user, req.query);
 
     sendResponse(res, {
         statusCode: StatusCodes.OK,
@@ -14,12 +14,11 @@ const getNotificationFromDB = catchAsync( async (req: Request, res: Response) =>
         message: 'Notifications Retrieved Successfully',
         data: result,
     });
-  }
+}
 );
 
-const adminNotificationFromDB = catchAsync( async (req: Request, res: Response) => {
-    const result = await NotificationService.adminNotificationFromDB();
-
+const adminNotificationFromDB = catchAsync(async (req: Request, res: Response) => {
+    const result = await NotificationService.adminNotificationFromDB(req.query);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         success: true,
@@ -29,8 +28,7 @@ const adminNotificationFromDB = catchAsync( async (req: Request, res: Response) 
 });
 
 const readNotification = catchAsync(async (req: Request, res: Response) => {
-    const user = req.user;
-    const result = await NotificationService.readNotificationToDB(user);
+    const result = await NotificationService.readNotificationToDB(req.user);
 
     sendResponse(res, {
         statusCode: StatusCodes.OK,
@@ -40,9 +38,8 @@ const readNotification = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-const adminReadNotification = catchAsync( async (req: Request, res: Response) => {
+const adminReadNotification = catchAsync(async (req: Request, res: Response) => {
     const result = await NotificationService.adminReadNotificationToDB();
-
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         success: true,
