@@ -4,7 +4,6 @@ import { ReviewService } from "./review.service";
 import sendResponse from "../../../shared/sendResponse";
 import { StatusCodes } from "http-status-codes";
 
-
 const createReview = catchAsync(async(req:Request, res:Response)=>{
     const result = await ReviewService.createReviewToDB(req.body);
 

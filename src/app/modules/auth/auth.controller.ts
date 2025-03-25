@@ -4,22 +4,9 @@ import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { AuthService } from './auth.service';
 
-const verifyEmail = catchAsync(async (req: Request, res: Response) => {
-    const { ...verifyData } = req.body;
-    const result = await AuthService.verifyEmailToDB(verifyData);
-
-    sendResponse(res, {
-        success: true,
-        statusCode: StatusCodes.OK,
-        message: result.message,
-        data: result.data,
-    });
-});
-
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
-    const { ...loginData } = req.body;
-    const result = await AuthService.loginUserFromDB(loginData);
+    const result = await AuthService.loginUserFromDB(req.body);
 
     sendResponse(res, {
         success: true,
@@ -29,45 +16,18 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-const forgetPassword = catchAsync(async (req: Request, res: Response) => {
-    const email = req.body.email;
-    const result = await AuthService.forgetPasswordToDB(email);
+const verifyPhone = catchAsync(async (req: Request, res: Response) => {
+    const result = await AuthService.verifyPhoneToDB(req.body);
 
     sendResponse(res, {
         success: true,
         statusCode: StatusCodes.OK,
-        message: 'Please check your email, we send a OTP!',
+        message: "Phone Verified Successfully",
         data: result
     });
 });
 
-const resetPassword = catchAsync(async (req: Request, res: Response) => {
-    const token = req.headers.authorization;
-    const { ...resetData } = req.body;
-    const result = await AuthService.resetPasswordToDB(token!, resetData);
-
-    sendResponse(res, {
-        success: true,
-        statusCode: StatusCodes.OK,
-        message: 'Password reset successfully',
-        data: result
-    });
-});
-
-const changePassword = catchAsync(async (req: Request, res: Response) => {
-    const user = req.user;
-    const { ...passwordData } = req.body;
-    await AuthService.changePasswordToDB(user, passwordData);
-
-    sendResponse(res, {
-        success: true,
-        statusCode: StatusCodes.OK,
-        message: 'Password changed successfully',
-    });
-});
-
-
-const newAccessToken = catchAsync(async (req: Request, res: Response) => {
+const refreshToken = catchAsync(async (req: Request, res: Response) => {
     const { token } = req.body;
     const result = await AuthService.newAccessTokenToUser(token);
 
@@ -79,9 +39,9 @@ const newAccessToken = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-const resendVerificationEmail = catchAsync(async (req: Request, res: Response) => {
-    const { email } = req.body;
-    const result = await AuthService.resendVerificationEmailToDB(email);
+const resendVerificationOTP = catchAsync(async (req: Request, res: Response) => {
+    const { phone } = req.body;
+    const result = await AuthService.resendVerificationOTPToDB(phone);
 
     sendResponse(res, {
         success: true,
@@ -91,37 +51,20 @@ const resendVerificationEmail = catchAsync(async (req: Request, res: Response) =
     });
 });
 
-const socialLogin = catchAsync(async (req: Request, res: Response) => {
-    const result = await AuthService.socialLoginFromDB(req.body);
-
-    sendResponse(res, {
-        success: true,
-        statusCode: StatusCodes.OK,
-        message: 'Logged in Successfully',
-        data: result
-    });
-});
-
-// delete user
 const deleteUser = catchAsync(async (req: Request, res: Response) => {
-    const result = await AuthService.deleteUserFromDB(req.user, req.body.password);
+    const result = await AuthService.deleteUserFromDB(req.user, req.body.phone);
 
     sendResponse(res, {
         success: true,
         statusCode: StatusCodes.OK,
-        message: 'Account Deleted successfully',
-        data: result
+        message: result
     });
 });
 
 export const AuthController = {
-    verifyEmail,
     loginUser,
-    forgetPassword,
-    resetPassword,
-    changePassword,
-    newAccessToken,
-    resendVerificationEmail,
-    socialLogin,
+    verifyPhone,
+    refreshToken,
+    resendVerificationOTP,
     deleteUser
 };

@@ -7,11 +7,15 @@ import mongoose, { FilterQuery } from "mongoose";
 import { sendNotifications } from "../../../helpers/notificationsHelper";
 import { Package } from "../package/package.model";
 import QueryBuilder from "../../../helpers/QueryBuilder";
+import stripe from "../../../config/stripe";
+import { checkMongooseIDValidation } from "../../../shared/checkMongooseIDValidation";
 
-const createReservationToDB = async (payload: IReservation): Promise<IReservation> => {
+const createReservationToDB = async (payload: IReservation): Promise<string> => {
 
     const session = await mongoose.startSession();
     session.startTransaction();
+
+    checkMongooseIDValidation(payload.package as any)
 
     const isExistPackage = await Package.findById(payload.package).lean();
     if (!isExistPackage) {
@@ -22,9 +26,38 @@ const createReservationToDB = async (payload: IReservation): Promise<IReservatio
     payload.vendor = isExistPackage.vendor;
 
     try {
+        
+
+        // Create a checkout session
+        const sessionCheckout = await stripe.checkout.sessions.create({
+            payment_method_types: ["card"],
+            mode: "payment",
+            line_items: [
+                {
+                    price_data: {
+                        currency: "usd",
+                        product_data: {
+                            name: isExistPackage.name,
+                        },
+                        unit_amount: Math.trunc(isExistPackage.price * 100),
+                    },
+                    quantity: 1,
+                },
+            ],
+            success_url: "http://10.0.80.75:6008/success",
+            cancel_url: "http://10.0.80.75:6008/failed"
+        });
+
+        payload.session = sessionCheckout.id;
         const reservation = (await Reservation.create([payload], { session }))[0];
         if (!reservation) {
             throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to created Reservation ');
+        }
+
+        if (!sessionCheckout.url) {
+            // Rollback: Delete the reservation before aborting transaction
+            await Reservation.deleteOne({ _id: reservation._id }, { session });
+            throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to create Payment Checkout");
         }
 
         const data = {
@@ -37,7 +70,9 @@ const createReservationToDB = async (payload: IReservation): Promise<IReservatio
 
         await session.commitTransaction();
         session.endSession();
-        return reservation;
+
+        return sessionCheckout?.url;
+
     } catch (error) {
         session.abortTransaction();
         session.endSession();
@@ -46,22 +81,31 @@ const createReservationToDB = async (payload: IReservation): Promise<IReservatio
 };
 
 const reservationsFromDB = async (user: JwtPayload, query: FilterQuery<any>): Promise<{ reservations: IReservation[], pagination: any }> => {
-    const result = new QueryBuilder(Reservation.find({ vendor: user.id }), query).paginate().filter();
-    const reservations = await result.queryModel.populate("service");
+
+    // Dynamically define the fields to populate
+    const populateFields = [
+        { path: "service" },
+        { path: user.role === "VENDOR" ? "vendor" : "customer", select: "name profile email" }
+    ];
+
+    const result = new QueryBuilder(Reservation.find({ $or: [{ vendor: user?.id }, { customer: user?.id }] }), query).paginate().filter();
+    const reservations = await result.queryModel.populate(populateFields).lean().exec();
     const pagination = await result.getPaginationInfo();
     return { reservations, pagination };
 }
 
 const reservationDetailsFromDB = async (id: string): Promise<IReservation> => {
-    if (!mongoose.Types.ObjectId.isValid(id)) throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid Reservation ID');
-    const reservation: IReservation | null = await Reservation.findById(id).lean();
+
+    checkMongooseIDValidation(id as string)
+
+    const reservation: IReservation | null = await Reservation.findById(id).lean().exec();
     if (!reservation) throw new ApiError(StatusCodes.NOT_FOUND, 'Reservation not found');
     return reservation;
 }
 
 const approvedReservationInDB = async (id: string, status: string): Promise<IReservation> => {
 
-    if (!mongoose.Types.ObjectId.isValid(id)) throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid Reservation ID');
+    checkMongooseIDValidation(id as string)
 
     if (!status || !['Accepted', 'Rejected'].includes(status)) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid status');

@@ -1,5 +1,6 @@
 import { model, Schema } from "mongoose";
 import { IPackage, PackageModel } from "./package.interface";
+import { PACKAGE } from "../../../enums/package";
 
 const packageSchema = new Schema<IPackage, PackageModel>(
     {
@@ -49,13 +50,20 @@ const packageSchema = new Schema<IPackage, PackageModel>(
         },
         status: {
             type: String,
-            enum: ['Active', 'Delete'],
-            default: 'Active',
-        },
+            enum: Object.values(PACKAGE),
+            default: PACKAGE.Active,
+        }
     },
     {
         timestamps: true,
     }
+);
+
+packageSchema.index({ category: 1, city: 1, price: 1 }); // Frequently filtered fields together
+packageSchema.index({ vendor: 1, status: 1 }); // Optimized for vendor-specific queries
+packageSchema.index(
+    { name: "text", location: "text", about: "text", city: "text" },
+    { weights: { name: 5, location: 3, about: 2, city: 1 } }
 );
 
 export const Package: PackageModel = model<IPackage, PackageModel>('Package', packageSchema);

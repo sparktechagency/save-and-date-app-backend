@@ -40,6 +40,7 @@ const updateFaqToDB = async (id: string, payload: IFaq): Promise<IFaq> => {
   const updatedFaq = await Faq.findByIdAndUpdate({ _id: id }, payload, {
     new: true,
   });
+  
   if (!updatedFaq) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to updated Faq');
   }

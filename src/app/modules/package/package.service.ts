@@ -2,7 +2,6 @@ import { StatusCodes } from "http-status-codes";
 import ApiError from "../../../errors/ApiErrors";
 import { IPackage } from "./package.interface";
 import { Package } from "./package.model";
-import mongoose from "mongoose";
 import unlinkFile from "../../../shared/unlinkFile";
 import QueryBuilder from "../../../helpers/QueryBuilder";
 import { JwtPayload } from "jsonwebtoken";
@@ -17,9 +16,17 @@ const createPackageInDB = async (payload: IPackage): Promise<IPackage | null> =>
     return result;
 }
 
-const getPackageFromDB = async (user: JwtPayload, query: Record<string, any>): Promise<{ packages: IPackage[], pagination: any }> => {
+const vendorPackagesFromDB = async (user: JwtPayload, query: Record<string, any>): Promise<{ packages: IPackage[], pagination: any }> => {
     const result = new QueryBuilder(Package.find({ vendor: user.id, status: "Active" }), query).paginate();
-    const packages = await result.queryModel.populate("category");
+    const packages = await result.queryModel.populate("category").lean().exec();
+    const pagination = await result.getPaginationInfo();
+
+    return { packages, pagination };
+}
+
+const packagesFromDB = async (query: Record<string, any>): Promise<{ packages: IPackage[], pagination: any }> => {
+    const result = new QueryBuilder(Package.find({status: "Active" }), query).paginate().filter().search(["name", "location", "city", "about"]);
+    const packages = await result.queryModel.populate("category").populate("vendor").lean().exec();
     const pagination = await result.getPaginationInfo();
 
     return { packages, pagination };
@@ -64,7 +71,7 @@ const deletePackageToDB = async (id: string): Promise<IPackage | null> => {
 const packageDetailsFromDB = async (id: string): Promise<IPackage | null> => {
     checkMongooseIDValidation(id);
 
-    const result = await Package.findById(id);
+    const result = await Package.findById(id).lean().exec();
 
     if (!result) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to get Package Details")
@@ -76,7 +83,8 @@ const packageDetailsFromDB = async (id: string): Promise<IPackage | null> => {
 export const PackageService = {
     createPackageInDB,
     updatePackageToDB,
-    getPackageFromDB,
+    vendorPackagesFromDB,
+    packagesFromDB,
     deletePackageToDB,
     packageDetailsFromDB
 }

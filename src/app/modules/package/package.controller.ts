@@ -26,8 +26,20 @@ const updatePackage = catchAsync(async(req: Request, res: Response)=>{
     })
 })
 
-const getPackage = catchAsync(async(req: Request, res: Response)=>{
-    const result = await PackageService.getPackageFromDB(req.user, req.query);
+const vendorPackage = catchAsync(async(req: Request, res: Response)=>{
+    const result = await PackageService.vendorPackagesFromDB(req.user, req.query);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: "Package Retrieved Successfully",
+        data: result
+    })
+})
+
+
+const getPackages = catchAsync(async(req: Request, res: Response)=>{
+    const result = await PackageService.packagesFromDB(req.query);
 
     sendResponse(res, {
         statusCode: StatusCodes.OK,
@@ -63,7 +75,8 @@ const deletePackage = catchAsync(async(req: Request, res: Response)=>{
 export const PackageController = {
     createPackage,
     updatePackage,
-    getPackage,
+    vendorPackage,
     packageDetails,
+    getPackages,
     deletePackage
 }

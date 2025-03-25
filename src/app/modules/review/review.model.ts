@@ -15,7 +15,7 @@ const reviewSchema = new Schema<IReview, ReviewModel>(
         },
         package: {
             type: Schema.Types.ObjectId,
-            ref: "Service",
+            ref: "Package",
             required: true,
         },
         comment: {

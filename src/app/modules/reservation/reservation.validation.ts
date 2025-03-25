@@ -1,14 +1,8 @@
-import { z } from 'zod'
-import { objectIdZodSchema } from '../../../helpers/checkObjectIdZodSchemaHelper'
+import { z } from 'zod';
+import { checkZodIDValidation } from '../../../shared/checkZodIDValidation';
 
-const createReservationZodSchema = z.object({
+export const createReservationZodSchema = z.object({
     body: z.object({
-        barber : objectIdZodSchema("Barber Object Id"),
-        service : objectIdZodSchema("Service Object Id"),
-        price: z.number({ required_error: 'PRice is required' })
+        barber : checkZodIDValidation("Package Object Id")
     })
 })
-
-export const ReviewValidationValidation = {
-    createReservationZodSchema
-}

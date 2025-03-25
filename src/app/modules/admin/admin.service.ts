@@ -2,8 +2,10 @@ import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../../errors/ApiErrors';
 import { IUser } from '../user/user.interface';
 import { User } from '../user/user.model';
+import { USER_ROLES } from '../../../enums/user';
 
 const createAdminToDB = async (payload: IUser): Promise<IUser> => {
+    payload.role = USER_ROLES.ADMIN;
     const createAdmin: any = await User.create(payload);
     if (!createAdmin) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to create Admin');

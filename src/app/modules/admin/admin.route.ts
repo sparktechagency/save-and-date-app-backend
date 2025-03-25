@@ -6,21 +6,18 @@ import validateRequest from '../../middlewares/validateRequest';
 import { AdminValidation } from './admin.validation';
 const router = express.Router();
 
-router.post(
-    '/create-admin',
-    auth(USER_ROLES.SUPER_ADMIN),
-    validateRequest(AdminValidation.createAdminZodSchema),
-    AdminController.createAdmin
-);
+router.route("/")
+    .post(
+        auth(USER_ROLES.SUPER_ADMIN),
+        validateRequest(AdminValidation.createAdminZodSchema),
+        AdminController.createAdmin
+    )
+    .get(
+        auth(USER_ROLES.SUPER_ADMIN),
+        AdminController.getAdmin
+    )
 
-router.get(
-    '/get-admin',
-    auth(USER_ROLES.SUPER_ADMIN),
-    AdminController.getAdmin
-);
-
-router.delete(
-    '/:id',
+router.delete('/:id',
     auth(USER_ROLES.SUPER_ADMIN),
     AdminController.deleteAdmin
 );

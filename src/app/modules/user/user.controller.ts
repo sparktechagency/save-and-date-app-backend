@@ -7,26 +7,13 @@ import sendResponse from '../../../shared/sendResponse';
 // register user
 const createUser = catchAsync( async (req: Request, res: Response, next: NextFunction) => {
     const { ...userData } = req.body;
-    const result = await UserService.createUserToDB(userData);
+    await UserService.createUserToDB(userData);
 
     sendResponse(res, {
         success: true,
         statusCode: StatusCodes.OK,
-        message: 'Your account has been successfully created. Verify Your Email By OTP. Check your email',
+        message: 'Your account has been successfully created. Verify Your Phone By OTP. Check your Phone',
     })
-});
-
-// register admin
-const createAdmin = catchAsync( async (req: Request, res: Response, next: NextFunction) => {
-    const { ...userData } = req.body;
-    const result = await UserService.createAdminToDB(userData);
-
-    sendResponse(res, {
-        success: true,
-        statusCode: StatusCodes.OK,
-        message: 'Admin created successfully',
-        data: result
-    });
 });
 
 // retrieved user profile
@@ -44,18 +31,7 @@ const getUserProfile = catchAsync(async (req: Request, res: Response) => {
 
 //update profile
 const updateProfile = catchAsync( async (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user;
-    
-    let profile;
-    if (req.files && 'image' in req.files && req.files.image[0]) {
-        profile = `/images/${req.files.image[0].filename}`;
-    }
-
-    const data = {
-        profile,
-        ...req.body,
-    };
-    const result = await UserService.updateProfileToDB(user, data);
+    const result = await UserService.updateProfileToDB(req.user, req.body);
 
     sendResponse(res, {
         success: true,
@@ -66,8 +42,7 @@ const updateProfile = catchAsync( async (req: Request, res: Response, next: Next
 });
 
 export const UserController = { 
-    createUser, 
-    createAdmin, 
+    createUser,
     getUserProfile, 
     updateProfile
 };

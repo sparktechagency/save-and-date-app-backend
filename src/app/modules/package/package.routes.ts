@@ -10,34 +10,39 @@ const router = express.Router()
 
 router.route("/")
     .post(
-        auth(USER_ROLES.VENDOR), 
-        fileUploadHandler(), 
-        async(req, res, next) => {
+        auth(USER_ROLES.VENDOR),
+        fileUploadHandler(),
+        async (req, res, next) => {
             try {
-                const {price, capacity, outdoor, indoor, ...otherPayload} = req.body;
+                const { price, capacity, outdoor, indoor, ...otherPayload } = req.body;
                 const image = getSingleFilePath(req.files, "image");
 
                 req.body = {
-                    image, 
+                    image,
                     vendor: req.user._id,
-                    price: Number(price), 
-                    capacity: Number(capacity), 
-                    outdoor: outdoor ? Number(outdoor) : undefined, 
-                    indoor: indoor ? Number(indoor) : undefined, 
+                    price: Number(price),
+                    capacity: Number(capacity),
+                    outdoor: outdoor ? Number(outdoor) : undefined,
+                    indoor: indoor ? Number(indoor) : undefined,
                     ...otherPayload
                 };
                 next();
             } catch (error) {
                 res.status(400).json({ message: "Failed to upload Package Image" });
             }
-        }, 
-        validateRequest(packageZodValidationSchema), 
+        },
+        validateRequest(packageZodValidationSchema),
         PackageController.createPackage
     )
     .get(
-        auth(USER_ROLES.VENDOR), 
-        PackageController.getPackage
+        auth(USER_ROLES.VENDOR),
+        PackageController.vendorPackage
     )
+
+router.get("/all",
+    auth(USER_ROLES.CUSTOMER, USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+    PackageController.getPackages
+)
 
 router.route("/:id")
     .patch(auth(USER_ROLES.VENDOR), PackageController.updatePackage)

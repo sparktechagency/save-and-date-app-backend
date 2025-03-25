@@ -1,4 +1,5 @@
 import { Model, Types } from "mongoose";
+import { PACKAGE } from "../../../enums/package";
 
 export type IPackage = {
     _id?: Types.ObjectId;
@@ -13,7 +14,7 @@ export type IPackage = {
     capacity: number;
     outdoor?: number;
     indoor?: number;
-    status: 'Active' | 'Delete'
+    status: PACKAGE;
 }
 
 export type PackageModel = Model<IPackage, Record<string, unknown>>; 

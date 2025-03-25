@@ -2,10 +2,10 @@ import { Model, Types } from 'mongoose';
 import { USER_ROLES } from '../../../enums/user';
 
 interface IStripeAccountInfo {
-    status: string;
-    stripeAccountId: string;
-    externalAccountId: string;
-    currency: string;
+    status: boolean;
+    stripeAccountId?: string;
+    externalAccountId?: string;
+    currency?: string;
 }
 
 interface IAuthenticationProps {
@@ -15,15 +15,14 @@ interface IAuthenticationProps {
 }
 
 export type IUser = {
-    name: string;
-    appId: string;
+    name?: string;
     role: USER_ROLES;
-    contact: string;
-    email: string;
-    password: string;
-    location: string;
+    phone?: string;
+    email?: string;
+    password?: string;
     profile: string;
     verified: boolean;
+    isDeleted: boolean;
     authentication?: IAuthenticationProps;
     accountInformation?: IStripeAccountInfo;
 }

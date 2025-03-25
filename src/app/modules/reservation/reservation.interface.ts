@@ -11,6 +11,7 @@ export type IReservation = {
     paymentStatus: PAYMENT;
     price: number;
     txid: string;
+    session?: string;
 }
 
 export type ReservationModel = Model<IReservation, Record<string, unknown>>;

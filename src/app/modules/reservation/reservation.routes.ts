@@ -2,6 +2,8 @@ import express, { NextFunction, Request, Response } from "express";
 import auth from "../../middlewares/auth";
 import { USER_ROLES } from "../../../enums/user";
 import { ReservationController } from "./reservation.controller";
+import validateRequest from "../../middlewares/validateRequest";
+import { createReservationZodSchema } from "./reservation.validation";
 const router = express.Router();
 
 router.route("/")
@@ -17,10 +19,11 @@ router.route("/")
                 res.status(500).json({ message: "Failed to processed reservation" });
             }
         },
+        validateRequest(createReservationZodSchema),
         ReservationController.createReservation
     )
     .get(
-        auth(USER_ROLES.VENDOR),
+        auth(USER_ROLES.VENDOR, USER_ROLES.CUSTOMER),
         ReservationController.reservations
     );
 

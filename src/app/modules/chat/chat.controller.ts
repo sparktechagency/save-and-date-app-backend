@@ -3,6 +3,7 @@ import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import { StatusCodes } from "http-status-codes";
 import { ChatService } from "./chat.service";
+import { JwtPayload } from "jsonwebtoken";
 
 const createChat = catchAsync(async (req: Request, res: Response) => {
     const chat = await ChatService.createChatToDB(req.body);
@@ -16,7 +17,7 @@ const createChat = catchAsync(async (req: Request, res: Response) => {
 })
 
 const getChat = catchAsync(async (req: Request, res: Response) => {
-    const chatList = await ChatService.getChatFromDB(req.user, req.query.search as string);
+    const chatList = await ChatService.getChatFromDB(req.user as JwtPayload, req.query.search as string);
   
     sendResponse(res, {
         statusCode: StatusCodes.OK,

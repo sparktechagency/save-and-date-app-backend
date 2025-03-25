@@ -3,23 +3,17 @@ import auth from '../../middlewares/auth';
 import { USER_ROLES } from '../../../enums/user';
 import { FaqController } from './faq.controller';
 import validateRequest from '../../middlewares/validateRequest';
-import { FaqValidation } from './faq.validation';
+import { faqZodValidationSchema } from './faq.validation';
 const router = express.Router();
 
 router
     .route('/')
     .post(
-        validateRequest(FaqValidation.createFaqZodSchema),
+        validateRequest(faqZodValidationSchema),
         auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
         FaqController.createFaq
     )
-    .get(
-        auth(
-            USER_ROLES.SUPER_ADMIN,
-            USER_ROLES.ADMIN
-        ),
-        FaqController.getFaqs
-    );
+    .get(FaqController.getFaqs);
 
 router
     .route('/:id')

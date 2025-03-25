@@ -9,32 +9,38 @@ const ReservationSchema = new Schema<IReservation, ReservationModel>(
         customer: {
             type: Schema.Types.ObjectId,
             ref: "User",
-            required: true
+            required: true,
+            index: true
         },
         vendor: {
             type: Schema.Types.ObjectId,
             ref: "User",
-            required: true
+            required: true,
+            index: true
         },
         package: {
             type: Schema.Types.ObjectId,
             ref: "Package",
-            required: true
+            required: true,
+            index: true
         },
         status: {
             type: String,
             enum: Object.values(RESERVATION),
-            default: RESERVATION.Pending
+            default: RESERVATION.Pending,
+            index: true
         },
         paymentStatus: {
             type: String,
             enum: Object.values(PAYMENT),
-            default: PAYMENT.Pending
+            default: PAYMENT.Pending,
+            index: true
         },
         price: {
             type: Number,
             required: true
         },
+        session: { type: String },
         txid: {
             type: String,
             unique: true,
@@ -44,16 +50,20 @@ const ReservationSchema = new Schema<IReservation, ReservationModel>(
     { timestamps: true }
 );
 
+// Compound Indexes for Efficient Filtering
+ReservationSchema.index({ vendor: 1, status: 1, paymentStatus: 1 });
+ReservationSchema.index({ customer: 1, status: 1, paymentStatus: 1 });
+ReservationSchema.index({ status: 1, paymentStatus: 1 });
 
+// Generate Unique Transaction ID Before Saving
 ReservationSchema.pre("save", async function (next) {
     const reservation = this;
 
-    if (reservation.isNew && !reservation?.txid) {
+    if (reservation.isNew && !reservation.txid) {
         const prefix = "tx_";
         const uniqueId = randomBytes(8).toString("hex");
         reservation.txid = `${prefix}${uniqueId}`;
     }
-
     next();
 });
 

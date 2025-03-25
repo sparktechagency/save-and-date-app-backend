@@ -2,8 +2,10 @@ import { FilterQuery } from 'mongoose';
 import { Message } from '../message/message.model';
 import { IChat } from './chat.interface';
 import { Chat } from './chat.model';
+import { JwtPayload } from 'jsonwebtoken';
 
 const createChatToDB = async (payload: IChat): Promise<IChat> => {
+
     const isExistChat: IChat | null = await Chat.findOne({
         participants: { $all: payload },
     });
@@ -15,7 +17,7 @@ const createChatToDB = async (payload: IChat): Promise<IChat> => {
     return chat;
 }
 
-const getChatFromDB = async (user: { id: string }, search: string): Promise<IChat[]> => {
+const getChatFromDB = async (user: JwtPayload, search: string): Promise<IChat[]> => {
     const query: FilterQuery<IChat> = {
         participants: user.id,
     };

@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { checkValidID } from '../../../shared/checkZodIDValidation';
+import { checkZodIDValidation } from '../../../shared/checkZodIDValidation';
 
 export const albumZodValidationSchema = z.object({
     body: z.object({
         name: z.string({ required_error: 'Name is required' }),
-        package: checkValidID("Package is required")
+        package: checkZodIDValidation("Package is required")
     })
 });

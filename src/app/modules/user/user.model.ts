@@ -12,10 +12,6 @@ const userSchema = new Schema<IUser, UserModal>(
             type: String,
             required: false,
         },
-        appId: {
-            type: String,
-            required: false,
-        },
         role: {
             type: String,
             enum: Object.values(USER_ROLES),
@@ -27,7 +23,7 @@ const userSchema = new Schema<IUser, UserModal>(
             unique: true,
             lowercase: true,
         },
-        contact: {
+        phone: {
             type: String,
             required: false,
         },
@@ -37,10 +33,6 @@ const userSchema = new Schema<IUser, UserModal>(
             select: 0,
             minlength: 8,
         },
-        location: {
-            type: String,
-            required: false,
-        },
         profile: {
             type: String,
             default: 'https://res.cloudinary.com/dzo4husae/image/upload/v1733459922/zfyfbvwgfgshmahyvfyk.png',
@@ -49,6 +41,7 @@ const userSchema = new Schema<IUser, UserModal>(
             type: Boolean,
             default: false,
         },
+        isDeleted: { type: Boolean },
         authentication: {
             type: {
                 isResetPassword: {
@@ -68,8 +61,7 @@ const userSchema = new Schema<IUser, UserModal>(
         },
         accountInformation: {
             status: {
-              type: Boolean,
-                default: false,
+              type: Boolean
             },
             stripeAccountId: {
                 type: String,
@@ -112,14 +104,23 @@ userSchema.statics.isMatchPassword = async ( password: string, hashPassword: str
   
 //check user
 userSchema.pre('save', async function (next) {
+
     //check user
     const isExist = await User.findOne({ email: this.email });
     if (isExist) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Email already exist!');
     }
+
+    if(this.role === USER_ROLES.VENDOR){
+        this.accountInformation = {
+            status : false
+        }
+    }
   
     //password hash
-    this.password = await bcrypt.hash( this.password, Number(config.bcrypt_salt_rounds));
+    if(this.email && this.password){
+        this.password = await bcrypt.hash( this.password, Number(config.bcrypt_salt_rounds));
+    }
     next();
 });
 export const User = model<IUser, UserModal>("User", userSchema)
