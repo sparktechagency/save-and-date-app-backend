@@ -1,6 +1,12 @@
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import colors from 'colors';
+import {
+    handleAccountUpdatedEvent,
+    handleSubscriptionCreated,
+    handleSubscriptionDeleted,
+    handleSubscriptionUpdated,
+} from '../handlers';
 import { StatusCodes } from 'http-status-codes';
 import { logger } from '../shared/logger';
 import config from '../config';
@@ -28,14 +34,26 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
     }
 
     // Extract event data and type
-    const data = event.data.object as Stripe.Checkout.Session;
+    const data = event.data.object as Stripe.Subscription | Stripe.Account;
     const eventType = event.type;
 
     // Handle the event based on its type
     try {
         switch (eventType) {
             case 'customer.subscription.created':
-                // await handleSubscriptionCreated(data as Stripe.Subscription);
+                await handleSubscriptionCreated(data as Stripe.Subscription);
+                break;
+
+            case 'customer.subscription.updated':
+                await handleSubscriptionUpdated(data as Stripe.Subscription);
+                break;
+
+            case 'customer.subscription.deleted':
+                await handleSubscriptionDeleted(data as Stripe.Subscription);
+                break;
+
+            case 'account.updated':
+                await handleAccountUpdatedEvent(data as Stripe.Account);
                 break;
 
             default:

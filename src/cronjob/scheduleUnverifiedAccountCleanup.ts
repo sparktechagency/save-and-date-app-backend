@@ -2,7 +2,7 @@ import cron from "node-cron";
 import { User } from "../app/modules/user/user.model";
 import { logger } from "../shared/logger";
 
-export const deleteUnverifiedAccount = () => {
+export const scheduleUnverifiedAccountCleanup = () => {
     const GRACE_PERIOD_MINUTES = 5;
 
     cron.schedule("* * * * *", async () => { // Runs every minute

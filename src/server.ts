@@ -6,6 +6,7 @@ import colors from 'colors';
 import { socketHelper } from "./helpers/socketHelper";
 import { Server } from "socket.io";
 import seedSuperAdmin from "./DB";
+import { scheduleUnverifiedAccountCleanup } from "./cronjob/scheduleUnverifiedAccountCleanup";
 
 
 //uncaught exception
@@ -22,6 +23,7 @@ async function main() {
 
         // create super admin
         seedSuperAdmin();
+        scheduleUnverifiedAccountCleanup()
 
 
         mongoose.connect(config.database_url as string);
