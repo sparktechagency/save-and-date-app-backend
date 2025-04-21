@@ -18,6 +18,8 @@ const loginUserFromDB = async (payload: ILoginData) => {
 
     const { phone } = payload;
 
+    console.log(phone)
+
     // Validate phone number
     if (!validPhoneNumberCheck(phone as string)) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid phone number. Please enter a valid number to receive an OTP.");

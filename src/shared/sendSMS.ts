@@ -11,10 +11,12 @@ const sendSMS = async (to: string, message: string) => {
             from: config.twilio.twilioNumber,
             to: to,
         });
+        console.log("Send Message Successfully")
         return {
             invalid: false,
             message: `Message sent successfully to ${to}`,
         };
+        
     } catch (error) {
         throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to send sms');
     }

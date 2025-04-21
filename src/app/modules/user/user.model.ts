@@ -25,7 +25,7 @@ const userSchema = new Schema<IUser, UserModal>(
         },
         phone: {
             type: String,
-            required: false,
+            required: true,
         },
         password: {
             type: String,

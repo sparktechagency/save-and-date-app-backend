@@ -8,7 +8,6 @@ import unlinkFile from "../../../shared/unlinkFile";
 import sendSMS from "../../../shared/sendSMS";
 
 const createUserToDB = async (payload: Partial<IUser>): Promise<IUser> => {
-
     const createUser = await User.create(payload);
     if (!createUser) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to create user');
@@ -17,7 +16,7 @@ const createUserToDB = async (payload: Partial<IUser>): Promise<IUser> => {
     // Generate OTP
     const otp = generateOTP();
     const authentication = {
-        oneTimeCode: otp,
+        oneTimeCode: otp, 
         expireAt: new Date(Date.now() + 5 * 60 * 1000)
     };
 

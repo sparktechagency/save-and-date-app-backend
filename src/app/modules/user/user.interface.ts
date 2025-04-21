@@ -17,9 +17,10 @@ interface IAuthenticationProps {
 export type IUser = {
     name?: string;
     role: USER_ROLES;
-    phone?: string;
+    phone: string;
     email?: string;
     password?: string;
+    countryCode?: string;
     profile: string;
     verified: boolean;
     isDeleted: boolean;
