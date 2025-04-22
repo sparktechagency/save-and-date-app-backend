@@ -10,7 +10,7 @@ import QueryBuilder from "../../../helpers/QueryBuilder";
 import stripe from "../../../config/stripe";
 import { checkMongooseIDValidation } from "../../../shared/checkMongooseIDValidation";
 
-const createReservationToDB = async (payload: IReservation): Promise<string> => {
+const createReservationToDB = async (payload: IReservation): Promise<IReservation> => {
 
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -26,38 +26,12 @@ const createReservationToDB = async (payload: IReservation): Promise<string> => 
     payload.vendor = isExistPackage.vendor;
 
     try {
+
+
         
-
-        // Create a checkout session
-        const sessionCheckout = await stripe.checkout.sessions.create({
-            payment_method_types: ["card"],
-            mode: "payment",
-            line_items: [
-                {
-                    price_data: {
-                        currency: "usd",
-                        product_data: {
-                            name: isExistPackage.name,
-                        },
-                        unit_amount: Math.trunc(isExistPackage.price * 100),
-                    },
-                    quantity: 1,
-                },
-            ],
-            success_url: "http://10.0.80.75:6008/success",
-            cancel_url: "http://10.0.80.75:6008/failed"
-        });
-
-        payload.session = sessionCheckout.id;
         const reservation = (await Reservation.create([payload], { session }))[0];
         if (!reservation) {
             throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to created Reservation ');
-        }
-
-        if (!sessionCheckout.url) {
-            // Rollback: Delete the reservation before aborting transaction
-            await Reservation.deleteOne({ _id: reservation._id }, { session });
-            throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to create Payment Checkout");
         }
 
         const data = {
@@ -71,7 +45,7 @@ const createReservationToDB = async (payload: IReservation): Promise<string> => 
         await session.commitTransaction();
         session.endSession();
 
-        return sessionCheckout?.url;
+        return reservation;
 
     } catch (error) {
         session.abortTransaction();
@@ -80,7 +54,7 @@ const createReservationToDB = async (payload: IReservation): Promise<string> => 
     }
 };
 
-const reservationsFromDB = async (user: JwtPayload, query: FilterQuery<any>): Promise<{ reservations: IReservation[], pagination: any }> => {
+const reservationsFromDB = async (user: JwtPayload, query: FilterQuery<any>): Promise<{ reservations: IReservation[], pagination: any, allStatus: any }> => {
 
     // Dynamically define the fields to populate
     const populateFields = [
@@ -91,7 +65,18 @@ const reservationsFromDB = async (user: JwtPayload, query: FilterQuery<any>): Pr
     const result = new QueryBuilder(Reservation.find({ $or: [{ vendor: user?.id }, { customer: user?.id }] }), query).paginate().filter();
     const reservations = await result.queryModel.populate(populateFields).lean().exec();
     const pagination = await result.getPaginationInfo();
-    return { reservations, pagination };
+
+    // check how many reservation in each status
+    const allStatus = await Promise.all(["Upcoming", "Accepted", "Rejected", "Canceled", "Completed"].map(
+        async (status: string) => {
+            return {
+                status,
+                count: await Reservation.countDocuments({ $or: [{ vendor: user?.id }, { customer: user?.id }], status })
+            }
+        })
+    );
+
+    return { reservations, pagination, allStatus };
 }
 
 const reservationDetailsFromDB = async (id: string): Promise<IReservation> => {
@@ -149,9 +134,64 @@ const approvedReservationInDB = async (id: string, status: string): Promise<IRes
     }
 }
 
+
+const reservationSummerFromDB = async (user: JwtPayload): Promise<{}> => {
+
+    // total earnings
+    const totalEarnings = await Reservation.aggregate([
+        {
+            $match: { vendor: user.id }
+        },
+        {
+            $group: {
+                _id: null,
+                totalEarnings: { $sum: "$price" }
+            }
+        }
+    ]);
+
+    // total earnings today
+    const today = new Date();
+    const todayEarnings = await Reservation.aggregate([
+        {
+            $match: { barber: user.id, createdAt: { $gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()) } }
+        },
+        {
+            $group: {
+                _id: null,
+                todayEarnings: { $sum: "$price" }
+            }
+        }
+    ]);
+
+    // total reservations today
+    const todayReservations = await Reservation.countDocuments(
+        {
+            vendor: user.id,
+            createdAt: { $gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()) }
+        } as any);
+
+    // total reservations
+    const totalServiceCount = await Package.countDocuments({ vendor: user.id } as any);
+
+    const data = {
+        earnings: {
+            total: totalEarnings[0]?.totalEarnings || 0,
+            today: todayEarnings[0]?.todayEarnings || 0,
+        },
+        services: {
+            today: todayReservations,
+            total: totalServiceCount
+        }
+    }
+
+    return data;
+}
+
 export const ReservationService = {
     createReservationToDB,
     approvedReservationInDB,
     reservationDetailsFromDB,
-    reservationsFromDB
+    reservationsFromDB,
+    reservationSummerFromDB
 }

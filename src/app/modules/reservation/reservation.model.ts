@@ -2,7 +2,6 @@ import { Schema, model } from "mongoose";
 import { IReservation, ReservationModel } from "./reservation.interface";
 import { randomBytes } from "crypto";
 import { RESERVATION } from "../../../enums/reservation";
-import { PAYMENT } from "../../../enums/payment";
 
 const ReservationSchema = new Schema<IReservation, ReservationModel>(
     {
@@ -30,17 +29,10 @@ const ReservationSchema = new Schema<IReservation, ReservationModel>(
             default: RESERVATION.Pending,
             index: true
         },
-        paymentStatus: {
-            type: String,
-            enum: Object.values(PAYMENT),
-            default: PAYMENT.Pending,
-            index: true
-        },
         price: {
             type: Number,
             required: true
         },
-        session: { type: String },
         txid: {
             type: String,
             unique: true,
@@ -51,9 +43,9 @@ const ReservationSchema = new Schema<IReservation, ReservationModel>(
 );
 
 // Compound Indexes for Efficient Filtering
-ReservationSchema.index({ vendor: 1, status: 1, paymentStatus: 1 });
-ReservationSchema.index({ customer: 1, status: 1, paymentStatus: 1 });
-ReservationSchema.index({ status: 1, paymentStatus: 1 });
+ReservationSchema.index({ vendor: 1, status: 1 });
+ReservationSchema.index({ customer: 1, status: 1 });
+ReservationSchema.index({ status: 1});
 
 // Generate Unique Transaction ID Before Saving
 ReservationSchema.pre("save", async function (next) {

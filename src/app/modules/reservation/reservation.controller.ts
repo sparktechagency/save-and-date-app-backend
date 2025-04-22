@@ -45,11 +45,23 @@ const approvedReservation = catchAsync(async (req: Request, res: Response) => {
         message: "Reservation Updated successfully",
         data: reservation
     })
-}); 
+});
+
+const reservationSummary = catchAsync(async (req: Request, res: Response) => {
+
+    const reservation = await ReservationService.reservationSummerFromDB(req.user);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: "Reservation Summery successfully",
+        data: reservation
+    })
+});
 
 export const ReservationController = {
     createReservation,
     reservations,
     reservationDetails,
-    approvedReservation
+    approvedReservation,
+    reservationSummary
 }

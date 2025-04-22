@@ -56,20 +56,6 @@ const userSchema = new Schema<IUser, UserModal>(
                 },
             },
             select: 0
-        },
-        accountInformation: {
-            status: {
-              type: Boolean
-            },
-            stripeAccountId: {
-                type: String,
-            },
-            externalAccountId: {
-                type: String,
-            },
-            currency: {
-                type: String,
-            }
         }
     },
     {
@@ -89,12 +75,6 @@ userSchema.statics.isExistUserByEmail = async (email: string) => {
     return isExist;
 };
   
-//account check
-userSchema.statics.isAccountCreated = async (id: string) => {
-    const isUserExist:any = await User.findById(id);
-    return isUserExist.accountInformation.status;
-};
-  
 //is match password
 userSchema.statics.isMatchPassword = async ( password: string, hashPassword: string): Promise<boolean> => {
     return await bcrypt.compare(password, hashPassword);
@@ -107,12 +87,6 @@ userSchema.pre('save', async function (next) {
     const isExist = await User.findOne({ email: this.email });
     if (isExist) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Email already exist!');
-    }
-
-    if(this.role === USER_ROLES.VENDOR){
-        this.accountInformation = {
-            status : false
-        }
     }
   
     //password hash

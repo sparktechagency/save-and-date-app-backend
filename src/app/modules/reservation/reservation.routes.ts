@@ -27,6 +27,12 @@ router.route("/")
         ReservationController.reservations
     );
 
+router.get("/summary",
+    auth(USER_ROLES.VENDOR),
+    ReservationController.reservationSummary
+
+)
+
 router.route("/:id")
     .get(
         auth(USER_ROLES.VENDOR, USER_ROLES.VENDOR),
