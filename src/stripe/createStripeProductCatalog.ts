@@ -3,8 +3,9 @@ import { IPackage } from "../app/modules/package/package.interface";
 import stripe from "../config/stripe";
 import ApiError from "../errors/ApiErrors";
 import config from "../config";
+import { IPlan } from "../app/modules/plan/plan.interface";
 
-export const createStripeProductCatalog = async ( payload: Partial<IPackage>): Promise<{ productId: string; paymentLink: string } | null> => {
+export const createStripeProductCatalog = async ( payload: Partial<IPlan>): Promise<{ productId: string; paymentLink: string } | null> => {
 
     // Create Product in Stripe
     const product = await stripe.products.create({
@@ -12,8 +13,8 @@ export const createStripeProductCatalog = async ( payload: Partial<IPackage>): P
         description: payload.description as string,
     });
 
-    let interval: 'month' | 'year' = 'month'; // Default to 'month'
-    let intervalCount = 1; // Default to every 1 month
+    let interval: 'month' | 'year' = 'month'; 
+    let intervalCount = 1; 
 
     // Map duration to interval_count
     switch (payload.duration) {

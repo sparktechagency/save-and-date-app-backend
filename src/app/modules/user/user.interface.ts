@@ -23,6 +23,7 @@ export type IUser = {
     countryCode?: string;
     profile: string;
     verified: boolean;
+    subscribe: boolean;
     isDeleted: boolean;
     authentication?: IAuthenticationProps;
     accountInformation?: IStripeAccountInfo;

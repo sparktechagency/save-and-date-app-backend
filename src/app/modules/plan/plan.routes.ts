@@ -3,18 +3,19 @@ import auth from "../../middlewares/auth";
 import { USER_ROLES } from "../../../enums/user";
 import { PlanController } from "./plan.controller";
 import validateRequest from "../../middlewares/validateRequest";
-import fileUploadHandler from "../../middlewares/fileUploaderHandler";
 import { createPlanZodValidationSchema } from "./plan.validation";
 const router = express.Router()
 
 router.route("/")
     .post(
-        fileUploadHandler(),
         auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
         validateRequest(createPlanZodValidationSchema),
         PlanController.createPlan
     )
-    .get(PlanController.getPlan)
+    .get(
+        auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.VENDOR),
+        PlanController.getPlan
+    )
 
 router
     .route("/:id")

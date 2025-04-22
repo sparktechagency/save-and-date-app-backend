@@ -9,7 +9,7 @@ router.route("/")
     auth(USER_ROLES.CUSTOMER),
     async (req, res, next) => {
       try {
-        req.body = { participants: [req.user.id, req.body.participant] };
+        req.body = [req.user.id, req.body.participant];
         next();
       } catch (error) {
         res.status(400).json({ message: "Failed to create chat" });

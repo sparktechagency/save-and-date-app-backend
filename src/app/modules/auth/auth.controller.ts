@@ -16,6 +16,17 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const loginAdmin = catchAsync(async (req: Request, res: Response) => {
+    const result = await AuthService.loginAdminFromDB(req.body);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Admin login successfully',
+        data: result
+    });
+});
+
 const verifyPhone = catchAsync(async (req: Request, res: Response) => {
     const result = await AuthService.verifyPhoneToDB(req.body);
 
@@ -66,5 +77,6 @@ export const AuthController = {
     verifyPhone,
     refreshToken,
     resendVerificationOTP,
-    deleteUser
+    deleteUser,
+    loginAdmin
 };

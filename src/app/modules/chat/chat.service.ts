@@ -18,6 +18,7 @@ const createChatToDB = async (payload: IChat): Promise<IChat> => {
 }
 
 const getChatFromDB = async (user: JwtPayload, search: string): Promise<IChat[]> => {
+
     const query: FilterQuery<IChat> = {
         participants: user.id,
     };
@@ -27,7 +28,11 @@ const getChatFromDB = async (user: JwtPayload, search: string): Promise<IChat[]>
         .populate({
             path: 'participants',
             select: '_id name profile',
-            match: search ? { name: { $regex: search, $options: 'i' }, _id: { $ne: user.id } } : { _id: { $ne: user.id } },
+            match: search
+                ?
+                { name: { $regex: search, $options: 'i' }, _id: { $ne: user.id } } 
+                : 
+                { _id: { $ne: user.id } },
         })
         .select('participants status')
         .lean();

@@ -19,6 +19,10 @@ router.post('/login',
     AuthController.loginUser
 );
 
+router.post('/admin-login',
+    AuthController.loginAdmin
+);
+
 router.post('/verify-phone',
     async (req: Request, res: Response, next: NextFunction) => {
         try {

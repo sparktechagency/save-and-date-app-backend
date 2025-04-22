@@ -8,6 +8,7 @@ import requestIp from 'request-ip';
 import rateLimit from 'express-rate-limit';
 import ApiError from "./errors/ApiErrors";
 import compression from "compression";
+import handleStripeWebhook from "./stripe/handleStripeWebhook";
 const app = express();
 
 const limiter = rateLimit({
@@ -43,6 +44,13 @@ app.use(express.static('uploads'));
 
 //router
 app.use('/api/v1', router);
+
+// Stripe webhook route
+app.use('/api/stripe/webhook',
+    express.raw({ type: 'application/json' }),
+    handleStripeWebhook
+);
+
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Hey, Welcome to Save And Date World. How can I assist you ");
