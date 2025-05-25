@@ -26,4 +26,9 @@ router.route('/')
         AlbumController.createAlbum
     )
 
+router.get('/:id',
+    auth(USER_ROLES.VENDOR, USER_ROLES.CUSTOMER),
+    AlbumController.retrieveAlbum
+)
+
 export const AlbumRoutes = router;

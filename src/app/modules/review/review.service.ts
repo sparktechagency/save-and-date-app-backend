@@ -6,7 +6,7 @@ import { Package } from "../package/package.model";
 
 const createReviewToDB = async (payload: IReview): Promise<IReview> => {
 
-    const isExistPackage = await Package.findById(payload.vendor);
+    const isExistPackage = await Package.findById(payload.package);
     if (!isExistPackage) {
         throw new ApiError(StatusCodes.NOT_FOUND, "Package Not Found");
     }
@@ -16,7 +16,7 @@ const createReviewToDB = async (payload: IReview): Promise<IReview> => {
     if (!result) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Failed To create Review")
     }
-    return payload;
+    return result;
 };
 
 

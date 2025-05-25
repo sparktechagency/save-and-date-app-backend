@@ -33,8 +33,8 @@ const verifyPhone = catchAsync(async (req: Request, res: Response) => {
     sendResponse(res, {
         success: true,
         statusCode: StatusCodes.OK,
-        message: "Phone Verified Successfully",
-        data: result
+        message: result?.message,
+        data: result?.data
     });
 });
 

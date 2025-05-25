@@ -23,7 +23,6 @@ router.route('/')
         async (req: Request, res: Response, next: NextFunction) => {
             try {
                 const profile = getSingleFilePath(req.files, "image");
-
                 req.body = { profile, ...req.body};
                 next();
 

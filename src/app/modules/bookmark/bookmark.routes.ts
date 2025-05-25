@@ -2,11 +2,14 @@ import express from "express";
 import { BookmarkController } from "./bookmark.controller";
 import auth from "../../middlewares/auth";
 import { USER_ROLES } from "../../../enums/user";
+import ApiError from "../../../errors/ApiErrors";
+import { StatusCodes } from "http-status-codes";
 
 const router = express.Router();
 
 router.route('/')
     .post(
+        auth(USER_ROLES.CUSTOMER),
         async(req, res, next) => {
             try {
                 req.body = {
@@ -15,10 +18,10 @@ router.route('/')
                 };
                 next();
             } catch (error) {
-                res.status(400).json({ message: "Failed to add bookmark" });
+                throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to process Bookmark")
             }
         }, 
-        auth(USER_ROLES.CUSTOMER), BookmarkController.toggleBookmark
+        BookmarkController.toggleBookmark
     )
     .get(
         auth(USER_ROLES.CUSTOMER),

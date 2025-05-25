@@ -1,5 +1,6 @@
 import { model, Schema } from 'mongoose';
 import { AlbumModel, IAlbum } from './album.interface';
+import config from '../../../config';
 
 const albumSchema = new Schema<IAlbum, AlbumModel>(
   {
@@ -22,7 +23,18 @@ const albumSchema = new Schema<IAlbum, AlbumModel>(
       required: true,
     }
   },
-  {timestamps: true}
+  { timestamps: true }
 );
+
+
+/* albumSchema.post('find', function (docs: any) {
+  docs.forEach((doc: any) => {
+    if (doc.image && !doc.image.startsWith('http')) { 
+      doc.image = `http://${config.ip_address}:${config.port}${doc.image}`;
+    }
+  });
+}); */
+
+
 
 export const Album = model<IAlbum, AlbumModel>('Album', albumSchema);

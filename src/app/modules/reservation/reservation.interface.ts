@@ -7,6 +7,8 @@ export type IReservation = {
     vendor: Types.ObjectId;
     package: Types.ObjectId;
     status: RESERVATION;
+    guest: number;
+    date: String;
     price: number;
     txid: string;
 }

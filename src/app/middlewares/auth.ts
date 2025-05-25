@@ -25,24 +25,6 @@ const auth = (...roles: string[]) => async (req: Request, res: Response, next: N
                 config.jwt.jwt_secret as Secret
             );
 
-            if (verifyUser.subscribe === true) {
-
-                const subscription: any = await Subscription.findOne({ vendor: verifyUser.id }).lean().exec();
-
-                if (subscription) {
-                    const subscriptionFromStripe = await stripe.subscriptions.retrieve(subscription.subscriptionId);
-
-                    // Check subscription status and update database accordingly
-                    if (subscriptionFromStripe?.status !== "active") {
-                        await Promise.all([
-                            User.findByIdAndUpdate(verifyUser.id, { subscribe: false }, { new: true }),
-                            Subscription.findOneAndUpdate({ vendor: verifyUser.id }, { status: "expired" }, { new: true })
-                        ]);
-                    }
-                    throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are not authorized');
-                }
-            }
-
             //set user to header
             req.user = verifyUser as JwtPayload;
 

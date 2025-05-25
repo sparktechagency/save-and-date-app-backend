@@ -47,6 +47,17 @@ const approvedReservation = catchAsync(async (req: Request, res: Response) => {
     })
 });
 
+const cancelReservation = catchAsync(async (req: Request, res: Response) => {
+
+    const reservation = await ReservationService.cancelReservationInDB(req.params.id, req.user);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: "Reservation Canceled successfully",
+        data: reservation
+    })
+});
+
 const reservationSummary = catchAsync(async (req: Request, res: Response) => {
 
     const reservation = await ReservationService.reservationSummerFromDB(req.user);
@@ -63,5 +74,6 @@ export const ReservationController = {
     reservations,
     reservationDetails,
     approvedReservation,
+    cancelReservation,
     reservationSummary
 }

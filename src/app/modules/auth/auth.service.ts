@@ -4,9 +4,7 @@ import config from '../../../config';
 import ApiError from '../../../errors/ApiErrors';
 import { jwtHelper } from '../../../helpers/jwtHelper';
 import { ILoginData, IVerifyEmail } from '../../../types/auth';
-import cryptoToken from '../../../util/cryptoToken';
 import generateOTP from '../../../util/generateOTP';
-import { ResetToken } from '../resetToken/resetToken.model';
 import { User } from '../user/user.model';
 import { IUser } from '../user/user.interface';
 import { validPhoneNumberCheck } from '../../../util/validPhoneNumberCheck';
@@ -17,30 +15,30 @@ import sendSMS from '../../../shared/sendSMS';
 const loginAdminFromDB = async (payload: ILoginData) => {
 
     const { email, password } = payload;
-    const isExistUser:any = await User.findOne({ email }).select('+password');
+    const isExistUser: any = await User.findOne({ email }).select('+password');
     if (!isExistUser) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
     }
-  
+
     //check verified and status
     if (!isExistUser.verified) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Please verify your account, then try to login again');
     }
-  
+
     //check match password
-    if ( password && !(await User.isMatchPassword(password, isExistUser.password))) {
+    if (password && !(await User.isMatchPassword(password, isExistUser.password))) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Password is incorrect!');
     }
 
     // Create JWT tokens in parallel
     const [accessToken, refreshToken] = await Promise.all([
         jwtHelper.createToken(
-            { id: isExistUser._id, role: isExistUser.role, subscribe: isExistUser.subscribe, email: isExistUser.email },
+            { id: isExistUser._id, role: isExistUser.role, email: isExistUser.email },
             config.jwt.jwt_secret as Secret,
             config.jwt.jwt_expire_in as string
         ),
         jwtHelper.createToken(
-            { id: isExistUser._id, role: isExistUser.role, subscribe: isExistUser.subscribe, email: isExistUser.email },
+            { id: isExistUser._id, role: isExistUser.role, email: isExistUser.email },
             config.jwt.jwtRefreshSecret as Secret,
             config.jwt.jwtRefreshExpiresIn as string
         ),
@@ -58,7 +56,13 @@ const loginUserFromDB = async (payload: ILoginData) => {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid phone number. Please enter a valid number to receive an OTP.");
     }
 
-    const existingUser: IUser & {_id: mongoose.Types.ObjectId} | null = await User.findOne({ phone });
+    const existingUser: IUser & { _id: mongoose.Types.ObjectId } | null = await User.findOne({ phone });
+
+    console.log(existingUser)
+
+    if (!existingUser?.verified) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Please verify your account, then try to login again");
+    }
 
     if (!existingUser) {
         return { register: true, verify: false };
@@ -70,13 +74,15 @@ const loginUserFromDB = async (payload: ILoginData) => {
         oneTimeCode: otp,
         expireAt: new Date(Date.now() + 5 * 60 * 1000)
     };
+    
+    await User.updateOne(
+        { _id: existingUser._id },
+        { $set: { authentication, } }
+    );
 
     await sendSMS(phone as string, otp.toString())
 
-    await User.updateOne(
-        { _id: existingUser._id },
-        { $set: { authentication,  } }
-    );
+
 
     return { register: false, verify: true };
 };
@@ -90,9 +96,11 @@ const verifyPhoneToDB = async (payload: IVerifyEmail) => {
         throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
     }
 
+
     if (!oneTimeCode) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Please give the otp, check your Phone we send a code');
     }
+
 
     if (isExistUser.authentication?.oneTimeCode !== oneTimeCode) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'You provided wrong otp');
@@ -103,61 +111,38 @@ const verifyPhoneToDB = async (payload: IVerifyEmail) => {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Otp already expired, Please try again');
     }
 
-    if(isExistUser.isDeleted){
-        await User.findOneAndDelete({phone})
+    if (isExistUser.isDeleted) {
+        await User.findOneAndDelete({ phone })
         const data = null;
         const message = "Your Account deleted Successfully."
         return { data, message }
     }
 
 
-    if (isExistUser.verified) {
+    if (isExistUser.verified === true || isExistUser.verified === false) {
         await User.findOneAndUpdate(
             { _id: isExistUser._id },
             { verified: true, authentication: { oneTimeCode: null, expireAt: null } }
         );
-    
+
         //create token
         const accessToken = jwtHelper.createToken(
             { id: isExistUser._id, role: isExistUser.role, subscribe: isExistUser.subscribe, phone: isExistUser.phone },
             config.jwt.jwt_secret as Secret,
             config.jwt.jwt_expire_in as string
         );
-    
+
         //create token
         const refreshToken = jwtHelper.createToken(
             { id: isExistUser._id, role: isExistUser.role, subscribe: isExistUser.subscribe, phone: isExistUser.phone },
             config.jwt.jwtRefreshSecret as Secret,
             config.jwt.jwtRefreshExpiresIn as string
         );
-        
-        const data = { accessToken, refreshToken }
+
+        const data = { accessToken, role: isExistUser.role, subscribe: isExistUser.subscribe, refreshToken }
         const message = "Phone Number verified successfully."
 
         return { data, message };
-    }else{
-        
-        await User.findOneAndUpdate(
-            { _id: isExistUser._id },
-            {
-                authentication: {
-                    isResetPassword: true,
-                    oneTimeCode: null,
-                    expireAt: null,
-                }
-            }
-        );
-  
-        //create token ;
-        const createToken = cryptoToken();
-        await ResetToken.create({
-            user: isExistUser._id,
-            token: createToken,
-            expireAt: new Date(Date.now() + 5 * 60000),
-        });
-        const message = 'Verification Successful: Please securely store and utilize this code for reset password';
-        const data = { createToken };
-        return { data, message }
     }
 };
 
@@ -192,7 +177,7 @@ const newAccessTokenToUser = async (token: string) => {
 const resendVerificationOTPToDB = async (phone: string) => {
 
     // Find the user by ID
-    const existingUser: IUser & {_id : mongoose.Types.ObjectId} | null = await User.findOne({ phone }).lean();
+    const existingUser: IUser & { _id: mongoose.Types.ObjectId } | null = await User.findOne({ phone }).lean();
 
     if (!existingUser) {
         throw new ApiError(StatusCodes.NOT_FOUND, 'User with this email does not exist!',);
@@ -213,7 +198,7 @@ const resendVerificationOTPToDB = async (phone: string) => {
 
     await User.updateOne(
         { _id: existingUser._id },
-        { $set: { authentication,  } }
+        { $set: { authentication, } }
     );
 };
 
@@ -225,7 +210,7 @@ const deleteUserFromDB = async (user: JwtPayload, phone: string) => {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid phone number. Please enter a valid number to receive an OTP.");
     }
 
-    const isExistUser = await User.findOne({phone});
+    const isExistUser = await User.findOne({ phone });
     if (!isExistUser) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
     }
@@ -241,7 +226,7 @@ const deleteUserFromDB = async (user: JwtPayload, phone: string) => {
 
     await User.updateOne(
         { _id: isExistUser?._id },
-        { $set: { authentication, isDeleted: true  } }
+        { $set: { authentication, isDeleted: true } }
     );
     return "Send the Verification OTP to your Phone Number. Kindly verify for the Delete account";
 };

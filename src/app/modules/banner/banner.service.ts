@@ -17,7 +17,7 @@ const createBannerToDB = async (payload: IBanner): Promise<IBanner> => {
 };
 
 const getAllBannerFromDB = async (): Promise<IBanner[]> => {
-  return await Banner.find({});
+  return await Banner.find({}).select("-_id -createdAt -updatedAt -__v");
 };
 
 const updateBannerToDB = async (id: string, payload: IBanner): Promise<IBanner | {}> => {

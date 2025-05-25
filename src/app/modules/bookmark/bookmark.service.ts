@@ -4,8 +4,11 @@ import { IBookmark } from "./bookmark.interface";
 import { Bookmark } from "./bookmark.model";
 import { JwtPayload } from "jsonwebtoken";
 import QueryBuilder from "../../../helpers/QueryBuilder";
+import { checkMongooseIDValidation } from "../../../shared/checkMongooseIDValidation";
 
 const toggleBookmark = async (payload: IBookmark): Promise<string> => {
+
+    checkMongooseIDValidation(payload.package.toString(), "Package");
 
     // Check if the bookmark already exists
     const existingBookmark = await Bookmark.findOne({

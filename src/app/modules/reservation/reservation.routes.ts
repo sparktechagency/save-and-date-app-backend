@@ -3,7 +3,7 @@ import auth from "../../middlewares/auth";
 import { USER_ROLES } from "../../../enums/user";
 import { ReservationController } from "./reservation.controller";
 import validateRequest from "../../middlewares/validateRequest";
-import { createReservationZodSchema } from "./reservation.validation";
+import { ReservationZodValidationSchema } from "./reservation.validation";
 const router = express.Router();
 
 router.route("/")
@@ -11,15 +11,19 @@ router.route("/")
         auth(USER_ROLES.CUSTOMER),
         async (req: Request, res: Response, next: NextFunction) => {
             try {
-
-                req.body = { ...req.body, customer: req.user.id };
+                const {guest, ...restPayload} = req.body;
+                req.body = {
+                    ...restPayload,
+                    customer: req.user.id,
+                    guest: Number(guest)
+                };
                 next();
 
             } catch (error) {
                 res.status(500).json({ message: "Failed to processed reservation" });
             }
         },
-        validateRequest(createReservationZodSchema),
+        validateRequest(ReservationZodValidationSchema),
         ReservationController.createReservation
     )
     .get(
@@ -35,12 +39,16 @@ router.get("/summary",
 
 router.route("/:id")
     .get(
-        auth(USER_ROLES.VENDOR, USER_ROLES.VENDOR),
+        auth(USER_ROLES.VENDOR, USER_ROLES.CUSTOMER),
         ReservationController.reservationDetails
     )
     .patch(
         auth(USER_ROLES.VENDOR),
         ReservationController.approvedReservation
+    )
+    .delete(
+        auth(USER_ROLES.CUSTOMER),
+        ReservationController.cancelReservation
     );
 
 

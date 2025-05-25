@@ -8,36 +8,27 @@ const ReservationSchema = new Schema<IReservation, ReservationModel>(
         customer: {
             type: Schema.Types.ObjectId,
             ref: "User",
-            required: true,
-            index: true
+            required: true
         },
         vendor: {
             type: Schema.Types.ObjectId,
             ref: "User",
-            required: true,
-            index: true
+            required: true
         },
         package: {
             type: Schema.Types.ObjectId,
             ref: "Package",
-            required: true,
-            index: true
+            required: true
         },
         status: {
             type: String,
             enum: Object.values(RESERVATION),
-            default: RESERVATION.Pending,
-            index: true
+            default: RESERVATION.Pending 
         },
-        price: {
-            type: Number,
-            required: true
-        },
-        txid: {
-            type: String,
-            unique: true,
-            index: true
-        }
+        guest: { type: Number, required: true },
+        date: { type: String, required: true },
+        price: { type: Number, required: true },
+        txid: { type: String, unique: true }
     },
     { timestamps: true }
 );
@@ -45,7 +36,6 @@ const ReservationSchema = new Schema<IReservation, ReservationModel>(
 // Compound Indexes for Efficient Filtering
 ReservationSchema.index({ vendor: 1, status: 1 });
 ReservationSchema.index({ customer: 1, status: 1 });
-ReservationSchema.index({ status: 1});
 
 // Generate Unique Transaction ID Before Saving
 ReservationSchema.pre("save", async function (next) {

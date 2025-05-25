@@ -19,7 +19,7 @@ router.route("/")
 
                 req.body = {
                     image,
-                    vendor: req.user._id,
+                    vendor: req.user.id,
                     price: Number(price),
                     capacity: Number(capacity),
                     outdoor: outdoor ? Number(outdoor) : undefined,
@@ -44,7 +44,23 @@ router.get("/all",
     PackageController.getPackages
 )
 
+router.get("/wedding",
+    auth(USER_ROLES.CUSTOMER),
+    PackageController.retrievedWeddingPackages
+)
+
+router.get("/popular",
+    auth(USER_ROLES.CUSTOMER),
+    PackageController.retrievedPopularPackages
+)
+
+router.get("/availability/:id",
+    auth(USER_ROLES.CUSTOMER),
+    PackageController.retrievedPackageAvailability
+)
+
 router.route("/:id")
+    .get(auth(USER_ROLES.VENDOR, USER_ROLES.CUSTOMER), PackageController.packageDetails)
     .patch(auth(USER_ROLES.VENDOR), PackageController.updatePackage)
     .delete(auth(USER_ROLES.VENDOR), PackageController.deletePackage)
 

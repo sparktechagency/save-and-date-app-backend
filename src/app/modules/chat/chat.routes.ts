@@ -18,7 +18,7 @@ router.route("/")
     ChatController.createChat
   )
   .get(
-    auth(USER_ROLES.CUSTOMER),
+    auth(USER_ROLES.CUSTOMER, USER_ROLES.VENDOR),
     ChatController.getChat
   );
 

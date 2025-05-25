@@ -50,7 +50,7 @@ const getPackages = catchAsync(async(req: Request, res: Response)=>{
 })
 
 const packageDetails = catchAsync(async(req: Request, res: Response)=>{
-    const result = await PackageService.packageDetailsFromDB(req.params.id);
+    const result = await PackageService.packageDetailsFromDB(req.params.id, req.user);
 
     sendResponse(res, {
         statusCode: StatusCodes.OK,
@@ -72,11 +72,47 @@ const deletePackage = catchAsync(async(req: Request, res: Response)=>{
     })
 })
 
+const retrievedWeddingPackages = catchAsync(async(req: Request, res: Response)=>{
+    const result = await PackageService.retrievedWeddingPackagesFromDB(req.user);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: "Wedding Package Retrieved Successfully",
+        data: result
+    })
+})
+
+const retrievedPopularPackages = catchAsync(async(req: Request, res: Response)=>{
+    const result = await PackageService.retrievedPopularPackagesFromDB(req.user);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: "Popular Package Retrieved Successfully",
+        data: result
+    })
+});
+
+const retrievedPackageAvailability = catchAsync(async(req: Request, res: Response)=>{
+    const result = await PackageService.retrievedPackageAvailability(req.params.id);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: "Package Availability Retrieved Successfully",
+        data: result
+    })
+})
+
 export const PackageController = {
     createPackage,
     updatePackage,
     vendorPackage,
     packageDetails,
     getPackages,
-    deletePackage
+    deletePackage,
+    retrievedWeddingPackages,
+    retrievedPopularPackages,
+    retrievedPackageAvailability
 }

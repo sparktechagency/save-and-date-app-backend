@@ -27,6 +27,13 @@ const limiter = rateLimit({
     }
 });
 
+
+// Stripe webhook route
+app.use('/api/stripe/webhook',
+    express.raw({ type: 'application/json' }),
+    handleStripeWebhook
+);
+
 // morgan
 app.use(Morgan.successHandler);
 app.use(Morgan.errorHandler);
@@ -37,7 +44,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(requestIp.mw());
-app.use(limiter);
+// app.use(limiter);
 
 //file retrieve
 app.use(express.static('uploads'));
@@ -45,11 +52,7 @@ app.use(express.static('uploads'));
 //router
 app.use('/api/v1', router);
 
-// Stripe webhook route
-app.use('/api/stripe/webhook',
-    express.raw({ type: 'application/json' }),
-    handleStripeWebhook
-);
+
 
 
 app.get("/", (req: Request, res: Response) => {

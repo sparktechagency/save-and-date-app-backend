@@ -16,9 +16,9 @@ const subscriptionSchema = new Schema<ISubscription, SubscriptionModel>(
             ref: "User",
             required: true
         },
-        package: {
+        plan: {
             type: Schema.Types.ObjectId,
-            ref: "Package",
+            ref: "Plan",
             required: true
         },
         trxId: {

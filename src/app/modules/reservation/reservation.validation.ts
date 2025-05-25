@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import { checkZodIDValidation } from '../../../shared/checkZodIDValidation';
 
-export const createReservationZodSchema = z.object({
+export const ReservationZodValidationSchema = z.object({
     body: z.object({
-        barber : checkZodIDValidation("Package Object Id")
+        package: checkZodIDValidation("Package Object Id"),
+        guest: z.number({ required_error: "Guest is required" }),
+        date: z.string({ required_error: "Date is required" }),
     })
 })

@@ -8,6 +8,12 @@ import unlinkFile from "../../../shared/unlinkFile";
 import sendSMS from "../../../shared/sendSMS";
 
 const createUserToDB = async (payload: Partial<IUser>): Promise<IUser> => {
+
+    const isExistUser = await User.findOne({ phone: payload.phone, email : payload.email });
+    if (isExistUser) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'User already exists');
+    }
+
     const createUser = await User.create(payload);
     if (!createUser) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to create user');
@@ -20,7 +26,7 @@ const createUserToDB = async (payload: Partial<IUser>): Promise<IUser> => {
         expireAt: new Date(Date.now() + 5 * 60 * 1000)
     };
 
-    await sendSMS(payload.phone as string, otp.toString());
+    // await sendSMS(payload.phone as string, otp.toString());
 
     await User.findOneAndUpdate(
         { _id: createUser._id },

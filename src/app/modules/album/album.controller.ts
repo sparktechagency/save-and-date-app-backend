@@ -12,4 +12,14 @@ const createAlbum = async (req: Request, res: Response, next: NextFunction) => {
     })
 }
 
-export const AlbumController = { createAlbum };
+const retrieveAlbum = async (req: Request, res: Response, next: NextFunction) => {
+    const result = await AlbumService.retrieveAlbumFromDB(req.params.id, req.query);
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: 'Retrieved Albums successfully',
+        data: result
+    })
+}
+
+export const AlbumController = { createAlbum, retrieveAlbum };

@@ -8,7 +8,7 @@ import QueryBuilder from "../../../helpers/QueryBuilder";
 
 const subscriptionDetailsFromDB = async (user: JwtPayload): Promise<ISubscription | {}> => {
 
-    const subscription = await Subscription.findOne({ vendor: user.id }).populate("package", "title duration features ").lean();
+    const subscription = await Subscription.findOne({ vendor: user.id }).populate("plan", "title price duration ").lean();
     if (!subscription) {
         return {}; // Return empty object if no subscription found
     }
@@ -23,7 +23,7 @@ const subscriptionDetailsFromDB = async (user: JwtPayload): Promise<ISubscriptio
         ]);
     }
 
-    return { subscription };
+    return subscription;
 };
 
 const subscriptionsFromDB = async (query: Record<string, unknown>): Promise<{ subscriptions: ISubscription[], pagination: any }> => {
@@ -32,11 +32,11 @@ const subscriptionsFromDB = async (query: Record<string, unknown>): Promise<{ su
     const subscriptions = await result.queryModel
         .populate([
             {
-                path: "package",
-                select: "title duration features"
+                path: "plan",
+                select: "title price duration"
             },
             {
-                path: "user",
+                path: "vendor",
                 select: "name email profile"
             }
         ])

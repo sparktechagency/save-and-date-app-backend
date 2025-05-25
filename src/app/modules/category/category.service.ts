@@ -23,7 +23,7 @@ const createCategoryToDB = async (payload: ICategory) => {
 }
 
 const getCategoriesFromDB = async (): Promise<ICategory[]> => {
-  const result = await Category.find({})
+  const result = await Category.find({}).select("-createdAt -updatedAt -__v");
   return result;
 }
 

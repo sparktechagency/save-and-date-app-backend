@@ -26,4 +26,9 @@ router.route("/")
         MediaController.createMedia
     );
 
+router.get('/:id',
+    auth(USER_ROLES.VENDOR, USER_ROLES.CUSTOMER),
+    MediaController.retrievedMedia
+)
+
 export const MediaRoutes = router;
