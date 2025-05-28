@@ -8,6 +8,7 @@ const superUser = {
     name: 'Meron Yoga',
     role: USER_ROLES.SUPER_ADMIN,
     email: config.admin.email,
+    phone: "+6552213543",
     password: config.admin.password,
     verified: true,
 };

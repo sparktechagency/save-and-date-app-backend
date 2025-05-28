@@ -18,6 +18,8 @@ import { NoteRoutes } from '../modules/note/note.route';
 import { ReminderRoutes } from '../modules/reminder/reminder.route';
 import { BookmarkRoutes } from '../modules/bookmark/bookmark.routes';
 import { ReviewRoutes } from '../modules/review/review.routes';
+import { NotificationRoutes } from '../modules/notification/notification.routes';
+import { SupportRoutes } from '../modules/support/support.routes';
 const router = express.Router();
 
 const apiRoutes = [
@@ -40,6 +42,8 @@ const apiRoutes = [
     { path: "/reminder", route: ReminderRoutes },
     { path: "/bookmark", route: BookmarkRoutes },
     { path: "/review", route: ReviewRoutes },
+    { path: "/notification", route: NotificationRoutes },
+    { path: "/support", route: SupportRoutes },
 ]
 
 apiRoutes.forEach(route => router.use(route.path, route.route));

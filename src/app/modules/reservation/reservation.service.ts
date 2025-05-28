@@ -189,6 +189,53 @@ const cancelReservationInDB = async (id: string, user: JwtPayload): Promise<IRes
 }
 
 
+const completeReservationInDB = async (id: string, user: JwtPayload): Promise<IReservation> => {
+
+    checkMongooseIDValidation(id as string);
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    const isExistReservation = await Reservation.findOne(
+        {
+            _id: id,
+            customer: user.id
+        }).lean().exec();
+
+    if (!isExistReservation) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Reservation not found');
+    }
+
+    try {
+
+        const updatedReservation = await Reservation.findOneAndUpdate(
+            { _id: id, customer: user.id },
+            { $set: { status: "Completed" } },
+            { new: true, session }
+        );
+
+        if (!updatedReservation) {
+            throw new ApiError(StatusCodes.NOT_FOUND, 'Failed to update reservation');
+        }
+
+        const data = {
+            text: "Your reservation has been Completed." as string,
+            receiver: isExistReservation.vendor as mongoose.Types.ObjectId,
+            referenceId: isExistReservation._id as mongoose.Types.ObjectId,
+            screen: "RESERVATION" as const
+        }
+        await sendNotifications(data, session);
+
+        await session.commitTransaction();
+        session.endSession();
+        return updatedReservation;
+    } catch (error) {
+        session.abortTransaction();
+        session.endSession();
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to Process order');
+    }
+}
+
 const reservationSummerFromDB = async (user: JwtPayload): Promise<{}> => {
 
     // total earnings
@@ -248,5 +295,6 @@ export const ReservationService = {
     reservationDetailsFromDB,
     reservationsFromDB,
     reservationSummerFromDB,
-    cancelReservationInDB
+    cancelReservationInDB,
+    completeReservationInDB
 }

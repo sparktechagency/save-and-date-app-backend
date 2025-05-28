@@ -34,7 +34,11 @@ router.route("/")
 router.get("/summary",
     auth(USER_ROLES.VENDOR),
     ReservationController.reservationSummary
+)
 
+router.patch("/completed",
+    auth(USER_ROLES.CUSTOMER),
+    ReservationController.completeReservation
 )
 
 router.route("/:id")

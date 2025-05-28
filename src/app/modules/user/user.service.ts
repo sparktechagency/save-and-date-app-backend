@@ -26,7 +26,7 @@ const createUserToDB = async (payload: Partial<IUser>): Promise<IUser> => {
         expireAt: new Date(Date.now() + 5 * 60 * 1000)
     };
 
-    // await sendSMS(payload.phone as string, otp.toString());
+    await sendSMS(payload.phone as string, otp.toString());
 
     await User.findOneAndUpdate(
         { _id: createUser._id },

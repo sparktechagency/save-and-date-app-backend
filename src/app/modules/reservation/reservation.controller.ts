@@ -69,11 +69,23 @@ const reservationSummary = catchAsync(async (req: Request, res: Response) => {
     })
 });
 
+const completeReservation = catchAsync(async (req: Request, res: Response) => {
+
+    const reservation = await ReservationService.completeReservationInDB(req.body.id, req.user);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: "Reservation Completed successfully",
+        data: reservation
+    })
+});
+
 export const ReservationController = {
     createReservation,
     reservations,
     reservationDetails,
     approvedReservation,
     cancelReservation,
-    reservationSummary
+    reservationSummary,
+    completeReservation
 }

@@ -147,7 +147,7 @@ const retrievedPopularPackagesFromDB = async (user: JwtPayload): Promise<{ packa
         }
     ]);
 
-    const PackagesQuery = new QueryBuilder(Package.find({ _id: { $in: popularPackageIDs[0].packageIds ?? [] } }), {})
+    const PackagesQuery = new QueryBuilder(Package.find({ _id: { $in: popularPackageIDs } }), {})
     const result = await PackagesQuery.queryModel.lean().exec();
     const pagination = await PackagesQuery.getPaginationInfo();
 
