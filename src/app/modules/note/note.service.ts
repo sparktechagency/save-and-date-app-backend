@@ -5,17 +5,18 @@ import { Note } from './note.model';
 import { JwtPayload } from 'jsonwebtoken';
 import QueryBuilder from '../../../helpers/QueryBuilder';
 import { FilterQuery } from 'mongoose';
+import { checkMongooseIDValidation } from '../../../shared/checkMongooseIDValidation';
 
 
 const makeNote = async (payload: INote): Promise<INote> => {
     const note = await Note.create(payload);
     if (!note) {
-        throw new ApiError( StatusCodes.BAD_REQUEST, "Failed to create note");
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to create note");
     }
     return note;
 }
 
-const retrieveNotesFromDB = async (user: JwtPayload, query: FilterQuery<any>): Promise<{notes: INote[], pagination: any}> => {
+const retrieveNotesFromDB = async (user: JwtPayload, query: FilterQuery<any>): Promise<{ notes: INote[], pagination: any }> => {
 
     const noteQuery = new QueryBuilder(
         Note.find({ customer: user.id }),
@@ -28,10 +29,19 @@ const retrieveNotesFromDB = async (user: JwtPayload, query: FilterQuery<any>): P
     ])
 
     if (!notes) {
-        throw new ApiError( StatusCodes.BAD_REQUEST, "Failed to retrieve notes");
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to retrieve notes");
     }
-    return {notes, pagination};
+    return { notes, pagination };
 }
 
-	
-export const NoteServices = { makeNote, retrieveNotesFromDB };
+
+const deleteNote = async (id: string): Promise<INote> => {
+    checkMongooseIDValidation(id, "Note");
+    const note = await Note.findByIdAndDelete(id);
+    if (!note) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to delete note");
+    }
+    return note;
+}
+
+export const NoteServices = { makeNote, retrieveNotesFromDB, deleteNote };

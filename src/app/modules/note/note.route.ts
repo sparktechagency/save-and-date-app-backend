@@ -27,4 +27,10 @@ router.route('/')
         NoteController.retrieveNotesFromDB
     );
 
+router.route('/:id')
+    .delete(
+        auth(USER_ROLES.CUSTOMER),
+        NoteController.deleteNote
+    );
+
 export const NoteRoutes = router;

@@ -25,6 +25,10 @@ router.route('/')
     .get(
         auth(USER_ROLES.CUSTOMER),
         ChecklistController.retrievedChecklist
+    )
+    .patch(
+        auth(USER_ROLES.CUSTOMER),
+        ChecklistController.completeChecklist
     );
 
 export const ChecklistRoutes = router;

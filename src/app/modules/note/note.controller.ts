@@ -24,5 +24,15 @@ const retrieveNotesFromDB = catchAsync(async (req: Request, res: Response, next:
     });
 });
 
+const deleteNote = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const result = await NoteServices.deleteNote(req.params.id);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: 'Note deleted successfully',
+        data: result
+    });
+});
 
-export const NoteController = { makeNote, retrieveNotesFromDB };
+
+export const NoteController = { makeNote, retrieveNotesFromDB, deleteNote };

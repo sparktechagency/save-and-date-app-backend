@@ -24,7 +24,18 @@ const retrievedChecklist = catchAsync(async (req: Request, res: Response, next: 
     });
 });
 
+const completeChecklist = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const result = await ChecklistService.completeChecklistToDB(req.body.id);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: 'Checklist completed successfully',
+        data: result
+    });
+});
+
 export const ChecklistController = { 
     createChecklist,
-    retrievedChecklist
+    retrievedChecklist,
+    completeChecklist
 };

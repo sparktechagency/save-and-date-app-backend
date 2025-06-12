@@ -30,7 +30,7 @@ router.route('/')
         auth(USER_ROLES.CUSTOMER),
         ReminderController.retrievedReminderFromDB
     )
-    .put(
+    .patch(
         auth(USER_ROLES.CUSTOMER),
         fileUploadHandler(),
         async (req, res, next) => {

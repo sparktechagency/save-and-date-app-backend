@@ -5,6 +5,7 @@ import { Checklist } from './checklist.model';
 import { StatusCodes } from 'http-status-codes';
 import { JwtPayload } from 'jsonwebtoken';
 import QueryBuilder from '../../../helpers/QueryBuilder';
+import { checkMongooseIDValidation } from '../../../shared/checkMongooseIDValidation';
 
 const createChecklistToDB = async (payload: IChecklist): Promise<IChecklist> => {
     const result = await Checklist.create(payload);
@@ -14,9 +15,9 @@ const createChecklistToDB = async (payload: IChecklist): Promise<IChecklist> => 
     return result;
 }
 
-const retrievedChecklistFromDB = async (user: JwtPayload, query: FilterQuery<any>): Promise<{checklist: IChecklist[], pagination: any}> => {
+const retrievedChecklistFromDB = async (user: JwtPayload, query: FilterQuery<any>): Promise<{ checklist: IChecklist[], pagination: any }> => {
     const checklistQuery = new QueryBuilder(
-        Checklist.find({customer: user.id}), 
+        Checklist.find({ customer: user.id }),
         query
     ).paginate();
 
@@ -28,4 +29,18 @@ const retrievedChecklistFromDB = async (user: JwtPayload, query: FilterQuery<any
     return { checklist, pagination };
 }
 
-export const ChecklistService = { createChecklistToDB, retrievedChecklistFromDB };
+const completeChecklistToDB = async (id: string): Promise<IChecklist> => {
+    checkMongooseIDValidation(id, "Checklist");
+
+    const result = await Checklist.findByIdAndUpdate(
+        id,
+        { status: "Completed" },
+        { new: true }
+    );
+    if (!result) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to complete checklist');
+    }
+    return result;
+}
+
+export const ChecklistService = { createChecklistToDB, retrievedChecklistFromDB, completeChecklistToDB };
