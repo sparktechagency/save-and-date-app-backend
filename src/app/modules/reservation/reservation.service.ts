@@ -39,7 +39,7 @@ const createReservationToDB = async (payload: IReservation): Promise<IReservatio
             referenceId: reservation._id as mongoose.Types.ObjectId,
             screen: "RESERVATION" as const
         }
-        
+
         await sendNotifications(data, session);
 
         await session.commitTransaction();
@@ -62,8 +62,11 @@ const reservationsFromDB = async (user: JwtPayload, query: FilterQuery<any>): Pr
         { path: user.role === "VENDOR" ? "customer" : "vendor", select: "name profile email countryCode phone" }
     ];
 
-    const result = new QueryBuilder(Reservation.find({ $or: [{ vendor: user?.id }, { customer: user?.id }] }), query).paginate().filter();
-    const reservations = await result.queryModel.populate(populateFields).lean().exec();
+    const result = new QueryBuilder(
+        Reservation.find({ $or: [{ vendor: user?.id }, { customer: user?.id }] })
+        ,query
+    ).paginate().filter();
+    const reservations = await result.queryModel.populate(populateFields).sort({createdAt: -1}).lean().exec();
     const pagination = await result.getPaginationInfo();
 
     // check how many reservation in each status

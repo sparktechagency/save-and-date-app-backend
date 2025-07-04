@@ -28,7 +28,7 @@ router.post('/verify-phone',
         try {
             const { phone, oneTimeCode } = req.body;
 
-            req.body = { phone, oneTimeCode: Number(oneTimeCode) };
+            req.body = { phone, oneTimeCode: Number(oneTimeCode), fcmToken: req.body.fcmToken };
             next();
 
         } catch (error) {

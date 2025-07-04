@@ -23,10 +23,8 @@ const userSchema = new Schema<IUser, UserModal>(
             unique: true,
             lowercase: true,
         },
-        phone: {
-            type: String,
-            required: true,
-        },
+        phone: { type: String, required: true },
+        fcmToken: { type: String, required: false },
         password: {
             type: String,
             required: false,

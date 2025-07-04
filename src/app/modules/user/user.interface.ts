@@ -15,6 +15,7 @@ export type IUser = {
     password?: string;
     countryCode?: string;
     profile: string;
+    fcmToken?: string;
     verified: boolean;
     subscribe: boolean;
     isDeleted: boolean;

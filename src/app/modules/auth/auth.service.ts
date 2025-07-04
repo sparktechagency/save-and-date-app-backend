@@ -58,8 +58,6 @@ const loginUserFromDB = async (payload: ILoginData) => {
 
     const existingUser: IUser & { _id: mongoose.Types.ObjectId } | null = await User.findOne({ phone });
 
-    console.log(existingUser)
-
     if (!existingUser?.verified) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Please verify your account, then try to login again");
     }
@@ -87,13 +85,22 @@ const loginUserFromDB = async (payload: ILoginData) => {
     return { register: false, verify: true };
 };
 
-const verifyPhoneToDB = async (payload: IVerifyEmail) => {
+const verifyPhoneToDB = async (payload: IVerifyEmail & {fcmToken: string}) => {
 
-    const { phone, oneTimeCode } = payload;
+    const { phone, oneTimeCode, fcmToken } = payload;
 
     const isExistUser = await User.findOne({ phone }).select('+authentication');
     if (!isExistUser) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
+    }
+
+    if(isExistUser && fcmToken){
+        const data = await User.updateOne(
+            { _id: isExistUser._id },
+            { $set: { fcmToken } }
+        );
+
+        console.log(data);
     }
 
 
