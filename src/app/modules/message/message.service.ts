@@ -48,7 +48,7 @@ const getMessageFromDB = async (id: string, user: JwtPayload, query: Record<stri
   checkMongooseIDValidation(id, "Chat")
 
   const result = new QueryBuilder(
-    Message.find({ chatId: id }).sort({ createdAt: 1 }),
+    Message.find({ chatId: id }).sort({ createdAt: -1 }),
     query
   ).paginate();
   const messages = await result.queryModel;
