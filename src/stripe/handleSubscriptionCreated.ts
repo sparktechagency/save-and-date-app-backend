@@ -29,6 +29,7 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
         const customer = await stripe.customers.retrieve(subscription.customer as string) as Stripe.Customer;
         const productId = subscription.items.data[0]?.price?.product as string;
         const invoice = await stripe.invoices.retrieve(subscription.latest_invoice as string) as Stripe.Invoice;
+        console.log("invoice", invoice)
 
         const trxId = (invoice as any)?.payment_intent as string;
         const amountPaid = (invoice?.total || 0) / 100;
@@ -45,8 +46,6 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
             console.log('Invalid Plan!');
             return;
         }
-
-        console.log(new Date(subscription.start_date * 1000).toLocaleString());
 
         // Get the current period start and end dates (Unix timestamps)
         const currentPeriodStart = new Date(subscription.start_date * 1000).toLocaleString(); // Convert to human-readable date
