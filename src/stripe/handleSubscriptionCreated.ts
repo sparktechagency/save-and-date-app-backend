@@ -46,6 +46,8 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
             return;
         }
 
+        console.log("Subscription", subscription)
+
         console.log( new Date(subscription?.current_period_start * 1000)?.toISOString());
         console.log( new Date(subscription?.current_period_start * 1000)?.toISOString())
 
