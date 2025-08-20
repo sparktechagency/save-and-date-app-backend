@@ -23,7 +23,7 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
     try {
 
         console.log('Subscription Webhook Calling...');
-        
+
         // Retrieve subscription details from Stripe
         const subscription = await stripe.subscriptions.retrieve(data.id as string);
         const customer = await stripe.customers.retrieve(subscription.customer as string) as Stripe.Customer;
@@ -46,14 +46,10 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
             return;
         }
 
-        console.log("Subscription", subscription)
-
-        console.log( new Date(subscription?.current_period_start * 1000)?.toISOString());
-        console.log( new Date(subscription?.current_period_start * 1000)?.toISOString())
-
         // Get the current period start and end dates (Unix timestamps)
-        const currentPeriodStart = new Date(subscription?.current_period_start * 1000)?.toISOString(); // Convert to human-readable date
-        const currentPeriodEnd = new Date(subscription?.current_period_end * 1000)?.toISOString();
+        const currentPeriodStart = new Date(subscription.start_date * 1000).toISOString(); // Convert to human-readable date
+        const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString();
+
 
         const payload = {
             customerId: customer.id,
