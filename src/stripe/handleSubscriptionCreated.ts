@@ -15,8 +15,7 @@ const createNewSubscription = async (payload: any) => {
             { new: true }
         )
     } else {
-        const newSubscription = new Subscription(payload);
-        await newSubscription.save();
+        await Subscription.create(payload);
     }
 };
 
