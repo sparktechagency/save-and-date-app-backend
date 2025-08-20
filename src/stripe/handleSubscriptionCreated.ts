@@ -7,7 +7,7 @@ import { Plan } from '../app/modules/plan/plan.model';
 
 // Helper function to create new subscription in database
 const createNewSubscription = async (payload: any) => {
-    const isExistSubscription = await Subscription.findOne({ user: payload.vendor });
+    const isExistSubscription = await Subscription.findOne({ vendor: payload.vendor });
     if (isExistSubscription) {
         await Subscription.findByIdAndUpdate(
             { _id: isExistSubscription._id },
