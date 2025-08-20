@@ -46,7 +46,17 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
 
         // Get the current period start and end dates (Unix timestamps)
         const currentPeriodStart = new Date(subscription.start_date * 1000).toLocaleString(); // Convert to human-readable date
-        const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toLocaleString();
+        const currentPeriodEnd = new Date(
+            subscription.billing_cycle_anchor * 1000 +
+            subscription?.plan?.interval_count * (
+                subscription?.plan?.interval === "month"
+                    ? 30 * 24 * 60 * 60 * 1000
+                    : subscription?.plan?.interval === "year"
+                        ? 365 * 24 * 60 * 60 * 1000
+                        : 24 * 60 * 60 * 1000
+            )
+        )?.toLocaleString();
+
 
 
         const payload = {
