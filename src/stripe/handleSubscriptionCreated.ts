@@ -47,9 +47,12 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
             return;
         }
 
+        console.log( new Date(subscription.current_period_start * 1000).toISOString());
+        console.log( new Date(subscription.current_period_start * 1000).toISOString())
+
         // Get the current period start and end dates (Unix timestamps)
-        const currentPeriodStart = new Date(subscription?.current_period_start * 1000).toISOString();
-        const currentPeriodEnd = new Date(subscription?.current_period_end * 1000).toISOString();
+        const currentPeriodStart = new Date(subscription.current_period_start * 1000).toISOString(); // Convert to human-readable date
+        const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString();
 
         const payload = {
             customerId: customer.id,
