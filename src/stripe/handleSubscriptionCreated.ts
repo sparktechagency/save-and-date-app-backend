@@ -29,9 +29,6 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
         const customer = await stripe.customers.retrieve(subscription.customer as string) as Stripe.Customer;
         const productId = subscription.items.data[0]?.price?.product as string;
         const invoice = await stripe.invoices.retrieve(subscription.latest_invoice as string) as Stripe.Invoice;
-        console.log("invoice", invoice)
-
-        const trxId = (invoice as any)?.payment_intent as string;
         const amountPaid = (invoice?.total || 0) / 100;
 
         // Find user and pricing plan
@@ -57,7 +54,6 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
             price: amountPaid,
             vendor: user._id,
             plan: plan._id,
-            trxId,
             subscriptionId: subscription.id,
             status: 'active',
             currentPeriodStart,

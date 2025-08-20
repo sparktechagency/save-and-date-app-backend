@@ -6,7 +6,6 @@ export type ISubscription = {
     price: number;
     vendor: Types.ObjectId;
     plan: Types.ObjectId;
-    trxId: string;
     subscriptionId: string;
     status: 'expired' | 'active' | 'cancel';
     currentPeriodStart: string;
