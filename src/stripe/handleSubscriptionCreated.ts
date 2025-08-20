@@ -1,6 +1,4 @@
-import { StatusCodes } from 'http-status-codes';
 import Stripe from 'stripe';
-import ApiError from '../errors/ApiErrors';
 import stripe from '../config/stripe';
 import { User } from '../app/modules/user/user.model';
 import { Subscription } from '../app/modules/subscription/subscription.model';
@@ -25,6 +23,8 @@ const createNewSubscription = async (payload: any) => {
 export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
     try {
 
+        console.log('Subscription Webhook Calling...');
+        
         // Retrieve subscription details from Stripe
         const subscription = await stripe.subscriptions.retrieve(data.id as string);
         const customer = await stripe.customers.retrieve(subscription.customer as string) as Stripe.Customer;
@@ -37,12 +37,14 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
         // Find user and pricing plan
         const user = await User.findOne({ email: customer.email }) as any;
         if (!user) {
-            throw new ApiError(StatusCodes.NOT_FOUND, 'Invalid User!');
+            console.log('User not found:', customer.email);
+            return;
         }
 
         const plan = await Plan.findOne({ productId }) as any;
         if (!plan) {
-            throw new ApiError(StatusCodes.NOT_FOUND, 'Invalid Plan!');
+            console.log('Invalid Plan!');
+            return;
         }
 
         // Get the current period start and end dates (Unix timestamps)
@@ -70,6 +72,7 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
         );
 
     } catch (error) {
-        return error;
+        console.log('Error handling subscription created:', error);
+        return;
     }
 };
