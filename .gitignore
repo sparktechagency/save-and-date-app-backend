@@ -2,3 +2,4 @@ node_modules
 uploads
 /winston
 src/firebaseSDK.json
+.env
