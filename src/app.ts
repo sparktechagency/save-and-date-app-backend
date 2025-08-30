@@ -48,6 +48,7 @@ app.use(requestIp.mw());
 
 //file retrieve
 app.use(express.static('uploads'));
+app.use(express.static("public"));
 
 //router
 app.use('/api/v1', router);
@@ -58,6 +59,8 @@ app.use('/api/v1', router);
 app.get("/", (req: Request, res: Response) => {
     res.send("Hey, Welcome to Save And Date World. How can I assist you ");
 })
+
+
 
 //global error handle
 app.use(globalErrorHandler);
