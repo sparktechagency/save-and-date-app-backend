@@ -36,6 +36,11 @@ router.get("/summary",
     ReservationController.reservationSummary
 )
 
+router.get("/lists",
+    auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN),
+    ReservationController.adminReservations
+)
+
 router.patch("/completed",
     auth(USER_ROLES.CUSTOMER),
     ReservationController.completeReservation

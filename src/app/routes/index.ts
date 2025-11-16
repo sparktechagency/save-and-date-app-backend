@@ -21,6 +21,7 @@ import { ReviewRoutes } from '../modules/review/review.routes';
 import { NotificationRoutes } from '../modules/notification/notification.routes';
 import { SupportRoutes } from '../modules/support/support.routes';
 import { SettingsRoutes } from '../modules/settings/settings.routes';
+import { AdminRoutes } from '../modules/admin/admin.route';
 const router = express.Router();
 
 const apiRoutes = [
@@ -45,7 +46,8 @@ const apiRoutes = [
     { path: "/review", route: ReviewRoutes },
     { path: "/notification", route: NotificationRoutes },
     { path: "/support", route: SupportRoutes },
-    {path: "/settings", route: SettingsRoutes}
+    {path: "/settings", route: SettingsRoutes},
+    {path: "/admin", route: AdminRoutes}
 ]
 
 apiRoutes.forEach(route => router.use(route.path, route.route));

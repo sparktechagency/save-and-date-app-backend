@@ -22,4 +22,24 @@ router.delete('/:id',
     AdminController.deleteAdmin
 );
 
+router.get('/summary',
+    auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+    AdminController.retrievedHomeSummary
+);
+
+router.get('/subscriptions-statistic',
+    auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+    AdminController.retrievedSubscriptionStatistic
+);
+
+router.get('/users-statistic',
+    auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+    AdminController.retrievedUserStatistics
+);
+
+router.get('/revenues-statistic',
+    auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+    AdminController.retrievedRevenueStatistics
+);
+
 export const AdminRoutes = router;

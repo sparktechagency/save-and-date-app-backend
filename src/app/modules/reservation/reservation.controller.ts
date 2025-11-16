@@ -80,6 +80,18 @@ const completeReservation = catchAsync(async (req: Request, res: Response) => {
     })
 });
 
+const adminReservations = catchAsync(async (req: Request, res: Response) => {
+
+    const reservation = await ReservationService.adminReservationsFromDB(req.query);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: "Admin Reservations Retrieved successfully",
+        data: reservation.reservations,
+        pagination: reservation.pagination
+    })
+});
+
 export const ReservationController = {
     createReservation,
     reservations,
@@ -87,5 +99,6 @@ export const ReservationController = {
     approvedReservation,
     cancelReservation,
     reservationSummary,
-    completeReservation
+    completeReservation,
+    adminReservations
 }

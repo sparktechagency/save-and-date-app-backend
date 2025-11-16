@@ -6,10 +6,11 @@ import ApiError from "../../../errors/ApiErrors";
 import generateOTP from "../../../util/generateOTP";
 import unlinkFile from "../../../shared/unlinkFile";
 import sendSMS from "../../../shared/sendSMS";
+import QueryBuilder from "../../../helpers/QueryBuilder";
 
 const createUserToDB = async (payload: Partial<IUser>): Promise<IUser> => {
 
-    const isExistUser = await User.findOne({ phone: payload.phone, email : payload.email });
+    const isExistUser = await User.findOne({ phone: payload.phone, email: payload.email });
     if (isExistUser) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'User already exists');
     }
@@ -22,7 +23,7 @@ const createUserToDB = async (payload: Partial<IUser>): Promise<IUser> => {
     // Generate OTP
     const otp = generateOTP();
     const authentication = {
-        oneTimeCode: otp, 
+        oneTimeCode: otp,
         expireAt: new Date(Date.now() + 5 * 60 * 1000)
     };
 
@@ -65,8 +66,35 @@ const updateProfileToDB = async (user: JwtPayload, payload: Partial<IUser>): Pro
     return updateDoc;
 };
 
+const customersFromDB = async (query: Record<string, unknown>): Promise<{ customers: IUser[], pagination: any }> => {
+
+    const customerQuery = new QueryBuilder(User.find({ role: "CUSTOMER" }), query).paginate();
+
+    const [customers, pagination] = await Promise.all([
+        customerQuery.queryModel.select('-password -authentication -isDeleted').lean(),
+        customerQuery.getPaginationInfo()
+    ]);
+
+    return { customers, pagination };
+}
+
+
+const vendorsFromDB = async (query: Record<string, unknown>): Promise<{ vendors: IUser[], pagination: any }> => {
+
+    const vendorsQuery = new QueryBuilder(User.find({ role: "CUSTOMER" }), query).paginate();
+
+    const [vendors, pagination] = await Promise.all([
+        vendorsQuery.queryModel.select('-password -authentication -isDeleted').lean(),
+        vendorsQuery.getPaginationInfo()
+    ]);
+
+    return { vendors, pagination };
+}
+
 export const UserService = {
     createUserToDB,
     getUserProfileFromDB,
-    updateProfileToDB
+    updateProfileToDB,
+    customersFromDB,
+    vendorsFromDB
 };

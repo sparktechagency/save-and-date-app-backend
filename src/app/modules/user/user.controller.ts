@@ -41,8 +41,32 @@ const updateProfile = catchAsync( async (req: Request, res: Response, next: Next
     });
 });
 
+const retrievedCustomers = catchAsync( async (req: Request, res: Response, next: NextFunction) => {
+    const result = await UserService.customersFromDB(req.query);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Customers Retrieved successfully',
+        data: result
+    });
+});
+
+const retrievedVendors = catchAsync( async (req: Request, res: Response, next: NextFunction) => {
+    const result = await UserService.vendorsFromDB(req.query);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Vendors Retrieved successfully',
+        data: result
+    });
+});
+
 export const UserController = { 
     createUser,
     getUserProfile, 
-    updateProfile
+    updateProfile,
+    retrievedCustomers,
+    retrievedVendors
 };

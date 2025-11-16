@@ -64,9 +64,9 @@ const reservationsFromDB = async (user: JwtPayload, query: FilterQuery<any>): Pr
 
     const result = new QueryBuilder(
         Reservation.find({ $or: [{ vendor: user?.id }, { customer: user?.id }] })
-        ,query
+        , query
     ).paginate().filter();
-    const reservations = await result.queryModel.populate(populateFields).sort({createdAt: -1}).lean().exec();
+    const reservations = await result.queryModel.populate(populateFields).sort({ createdAt: -1 }).lean().exec();
     const pagination = await result.getPaginationInfo();
 
     // check how many reservation in each status
@@ -292,6 +292,31 @@ const reservationSummerFromDB = async (user: JwtPayload): Promise<{}> => {
     return data;
 }
 
+
+const adminReservationsFromDB = async (query: Record<string, unknown>): Promise<{ reservations: IReservation[], pagination: any }> => {
+
+    const reservationsQuery = new QueryBuilder(
+        Reservation.find(),
+        query
+    ).paginate().filter();
+
+    const [reservations, pagination] = await Promise.all([
+        reservationsQuery.queryModel.populate([
+            {
+                path: "customer",
+                select: "name email profile phone"
+            },
+            {
+                path: "vencdor",
+                select: "name email profile phone"
+            },
+        ]).lean().exec(),
+        reservationsQuery.getPaginationInfo()
+    ]);
+
+    return { reservations, pagination };
+}
+
 export const ReservationService = {
     createReservationToDB,
     approvedReservationInDB,
@@ -299,5 +324,6 @@ export const ReservationService = {
     reservationsFromDB,
     reservationSummerFromDB,
     cancelReservationInDB,
-    completeReservationInDB
+    completeReservationInDB,
+    adminReservationsFromDB
 }

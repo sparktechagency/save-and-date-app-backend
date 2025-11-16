@@ -23,7 +23,7 @@ router.route('/')
         async (req: Request, res: Response, next: NextFunction) => {
             try {
                 const profile = getSingleFilePath(req.files, "image");
-                req.body = { profile, ...req.body};
+                req.body = { profile, ...req.body };
                 next();
 
             } catch (error) {
@@ -32,5 +32,14 @@ router.route('/')
         },
         UserController.updateProfile
     );
+
+router.get("/customers",
+    auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN),
+    UserController.retrievedCustomers
+);
+router.get("/vendors",
+    auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN),
+    UserController.retrievedVendors
+);
 
 export const UserRoutes = router;

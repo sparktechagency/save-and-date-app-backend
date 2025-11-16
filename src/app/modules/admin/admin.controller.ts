@@ -41,8 +41,57 @@ const getAdmin = catchAsync(async (req: Request, res: Response) => {
 
 });
 
+
+const retrievedHomeSummary = catchAsync(async (req: Request, res: Response) => {
+
+    const result = await AdminService.summaryFromDB();
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: 'Home Summary Retrieved Successfully',
+        data: result
+    });
+});
+
+const retrievedSubscriptionStatistic = catchAsync(async (req: Request, res: Response) => {
+
+    const result = await AdminService.subscriptionStatisticFromDB();
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: 'Subscriptions Statistic Retrieved Successfully',
+        data: result
+    });
+});
+
+const retrievedUserStatistics = catchAsync(async (req: Request, res: Response) => {
+
+    const result = await AdminService.userStatisticsFromDB();
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: 'Users Statistic Retrieved Successfully',
+        data: result
+    });
+});
+
+const retrievedRevenueStatistics = catchAsync(async (req: Request, res: Response) => {
+
+    const result = await AdminService.revenueStatisticsFromDB();
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: 'Users Statistic Retrieved Successfully',
+        data: result
+    });
+});
+
 export const AdminController = {
     deleteAdmin,
     createAdmin,
-    getAdmin
+    getAdmin,
+    retrievedHomeSummary,
+    retrievedSubscriptionStatistic,
+    retrievedUserStatistics,
+    retrievedRevenueStatistics
 };
