@@ -81,7 +81,7 @@ const customersFromDB = async (query: Record<string, unknown>): Promise<{ custom
 
 const vendorsFromDB = async (query: Record<string, unknown>): Promise<{ vendors: IUser[], pagination: any }> => {
 
-    const vendorsQuery = new QueryBuilder(User.find({ role: "CUSTOMER" }), query).paginate();
+    const vendorsQuery = new QueryBuilder(User.find({ role: "VENDOR" }), query).paginate();
 
     const [vendors, pagination] = await Promise.all([
         vendorsQuery.queryModel.select('-password -authentication -isDeleted').lean(),
