@@ -102,7 +102,7 @@ const subscriptionStatisticFromDB = async () => {
     ]);
 
     // Populate statistics array
-    subscriptionAnalytics.forEach(stat => {
+    subscriptionAnalytics.forEach((stat:any) => {
         const monthIndex = stat._id.month - 1;
         subscriptionStatisticsArray[monthIndex].total = stat.total;
     });
@@ -143,7 +143,7 @@ const userStatisticsFromDB = async () => {
     ]);
 
     // Populate statistics array
-    usersAnalytics.forEach(stat => {
+    usersAnalytics.forEach((stat:any) => {
         const monthIndex = stat._id.month - 1;
         if (stat._id.role === "CUSTOMER") {
             userStatisticsArray[monthIndex].customers = stat.total;
@@ -187,7 +187,7 @@ const revenueStatisticsFromDB = async () => {
     ]);
 
     // Populate statistics array
-    revenueAnalytics.forEach(stat => {
+    revenueAnalytics.forEach((stat:any) => {
         const monthIndex = stat._id.month - 1;
         revenueStatisticsArray[monthIndex].revenue = stat.total;
     });

@@ -13,4 +13,8 @@ router.get("/account-delete-policy", (req: Request, res: Response, next: NextFun
     res.sendFile(process.cwd() + "/view/accountDelete.html");
 });
 
+router.get("/supports", (req: Request, res: Response, next: NextFunction) => {
+    res.sendFile(process.cwd() + "/view/support.html");
+});
+
 export const SettingsRoutes = router;

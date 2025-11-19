@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 const createBannerToDB = async (payload: IBanner): Promise<IBanner> => {
 
   const createBanner: any = await Banner.create(payload);
-  if (!createBanner) {
+  if (!createBanner){
     unlinkFile(payload.image)
     throw new ApiError(StatusCodes.OK, "Failed to created banner");
   }
@@ -17,7 +17,7 @@ const createBannerToDB = async (payload: IBanner): Promise<IBanner> => {
 };
 
 const getAllBannerFromDB = async (): Promise<IBanner[]> => {
-  return await Banner.find({}).select("-_id -createdAt -updatedAt -__v");
+  return await Banner.find({});
 };
 
 const updateBannerToDB = async (id: string, payload: IBanner): Promise<IBanner | {}> => {
