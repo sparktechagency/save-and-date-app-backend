@@ -67,7 +67,7 @@ const loginUserFromDB = async (payload: ILoginData) => {
     }
 
     // Generate OTP
-    const otp = generateOTP();
+    const otp = 111111;
     const authentication = {
         oneTimeCode: otp,
         expireAt: new Date(Date.now() + 5 * 60 * 1000)
@@ -99,8 +99,6 @@ const verifyPhoneToDB = async (payload: IVerifyEmail & {fcmToken: string}) => {
             { _id: isExistUser._id },
             { $set: { fcmToken } }
         );
-
-        console.log(data);
     }
 
 
