@@ -3,8 +3,11 @@ import catchAsync from "../../../shared/catchAsync";
 import { PackageService } from "./package.service";
 import sendResponse from "../../../shared/sendResponse";
 import { StatusCodes } from "http-status-codes";
+import { jwtHelper } from "../../../helpers/jwtHelper";
+import config from "../../../config";
+import { JwtPayload, Secret } from "jsonwebtoken";
 
-const createPackage = catchAsync(async(req: Request, res: Response)=>{
+const createPackage = catchAsync(async (req: Request, res: Response) => {
     const result = await PackageService.createPackageInDB(req.body);
 
     sendResponse(res, {
@@ -15,7 +18,7 @@ const createPackage = catchAsync(async(req: Request, res: Response)=>{
     })
 })
 
-const updatePackage = catchAsync(async(req: Request, res: Response)=>{
+const updatePackage = catchAsync(async (req: Request, res: Response) => {
     const result = await PackageService.updatePackageToDB(req.params.id, req.body);
 
     sendResponse(res, {
@@ -26,7 +29,7 @@ const updatePackage = catchAsync(async(req: Request, res: Response)=>{
     })
 })
 
-const vendorPackage = catchAsync(async(req: Request, res: Response)=>{
+const vendorPackage = catchAsync(async (req: Request, res: Response) => {
     const result = await PackageService.vendorPackagesFromDB(req.user, req.query);
 
     sendResponse(res, {
@@ -38,7 +41,7 @@ const vendorPackage = catchAsync(async(req: Request, res: Response)=>{
 })
 
 
-const getPackages = catchAsync(async(req: Request, res: Response)=>{
+const getPackages = catchAsync(async (req: Request, res: Response) => {
     const result = await PackageService.packagesFromDB(req.query);
 
     sendResponse(res, {
@@ -49,7 +52,15 @@ const getPackages = catchAsync(async(req: Request, res: Response)=>{
     })
 })
 
-const packageDetails = catchAsync(async(req: Request, res: Response)=>{
+const packageDetails = catchAsync(async (req: Request, res: Response) => {
+    if (req.headers.authorization) {
+        const verifyUser = jwtHelper.verifyToken(
+            req.headers.authorization,
+            config.jwt.jwt_secret as Secret
+        );
+
+        req.user = verifyUser as JwtPayload;
+    }
     const result = await PackageService.packageDetailsFromDB(req.params.id, req.user);
 
     sendResponse(res, {
@@ -61,7 +72,7 @@ const packageDetails = catchAsync(async(req: Request, res: Response)=>{
 })
 
 
-const deletePackage = catchAsync(async(req: Request, res: Response)=>{
+const deletePackage = catchAsync(async (req: Request, res: Response) => {
     const result = await PackageService.deletePackageToDB(req.params.id);
 
     sendResponse(res, {
@@ -72,7 +83,17 @@ const deletePackage = catchAsync(async(req: Request, res: Response)=>{
     })
 })
 
-const retrievedWeddingPackages = catchAsync(async(req: Request, res: Response)=>{
+const retrievedWeddingPackages = catchAsync(async (req: Request, res: Response) => {
+
+    if (req.headers.authorization) {
+        const verifyUser = jwtHelper.verifyToken(
+            req.headers.authorization,
+            config.jwt.jwt_secret as Secret
+        );
+
+        req.user = verifyUser as JwtPayload;
+    }
+
     const result = await PackageService.retrievedWeddingPackagesFromDB(req.user);
 
     sendResponse(res, {
@@ -83,7 +104,15 @@ const retrievedWeddingPackages = catchAsync(async(req: Request, res: Response)=>
     })
 })
 
-const retrievedPopularPackages = catchAsync(async(req: Request, res: Response)=>{
+const retrievedPopularPackages = catchAsync(async (req: Request, res: Response) => {
+    if (req.headers.authorization) {
+        const verifyUser = jwtHelper.verifyToken(
+            req.headers.authorization,
+            config.jwt.jwt_secret as Secret
+        );
+
+        req.user = verifyUser as JwtPayload;
+    }
     const result = await PackageService.retrievedPopularPackagesFromDB(req.user);
 
     sendResponse(res, {
@@ -94,7 +123,7 @@ const retrievedPopularPackages = catchAsync(async(req: Request, res: Response)=>
     })
 });
 
-const retrievedPackageAvailability = catchAsync(async(req: Request, res: Response)=>{
+const retrievedPackageAvailability = catchAsync(async (req: Request, res: Response) => {
     const result = await PackageService.retrievedPackageAvailability(req.params.id);
 
     sendResponse(res, {

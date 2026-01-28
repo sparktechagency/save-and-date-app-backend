@@ -99,10 +99,6 @@ const retrievedWeddingPackagesFromDB = async (user: JwtPayload): Promise<{ packa
         name: { $regex: /wedding/i }
     }).distinct("_id").exec();
 
-    console.log(weddingCategories)
-
-
-
     const PackagesQuery = new QueryBuilder(Package.find({ category: { $in: weddingCategories } }), {})
     const result = await PackagesQuery.queryModel.lean().exec();
     const pagination = await PackagesQuery.getPaginationInfo();

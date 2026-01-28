@@ -4,10 +4,6 @@ import { JwtPayload, Secret } from 'jsonwebtoken';
 import config from '../../config';
 import { jwtHelper } from '../../helpers/jwtHelper';
 import ApiError from '../../errors/ApiErrors';
-import { USER_ROLES } from '../../enums/user';
-import { Subscription } from '../modules/subscription/subscription.model';
-import stripe from '../../config/stripe';
-import { User } from '../modules/user/user.model';
 
 const auth = (...roles: string[]) => async (req: Request, res: Response, next: NextFunction) => {
     try {

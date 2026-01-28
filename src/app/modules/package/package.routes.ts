@@ -45,12 +45,10 @@ router.get("/all",
 )
 
 router.get("/wedding",
-    auth(USER_ROLES.CUSTOMER),
     PackageController.retrievedWeddingPackages
 )
 
 router.get("/popular",
-    auth(USER_ROLES.CUSTOMER),
     PackageController.retrievedPopularPackages
 )
 
@@ -60,7 +58,7 @@ router.get("/availability/:id",
 )
 
 router.route("/:id")
-    .get(auth(USER_ROLES.VENDOR, USER_ROLES.CUSTOMER), PackageController.packageDetails)
+    .get(PackageController.packageDetails)
     .patch(auth(USER_ROLES.VENDOR), PackageController.updatePackage)
     .delete(auth(USER_ROLES.VENDOR), PackageController.deletePackage)
 
