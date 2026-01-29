@@ -93,7 +93,7 @@ const packageDetailsFromDB = async (id: string, user: JwtPayload): Promise<{ pac
     } as any;
 }
 
-const retrievedWeddingPackagesFromDB = async (user: JwtPayload): Promise<{ packages: IPackage[], pagination: any }> => {
+const retrievedWeddingPackagesFromDB = async (user?: JwtPayload): Promise<{ packages: IPackage[], pagination: any }> => {
 
     const weddingCategories = await Category.find({
         name: { $regex: /wedding/i }
@@ -104,7 +104,7 @@ const retrievedWeddingPackagesFromDB = async (user: JwtPayload): Promise<{ packa
     const pagination = await PackagesQuery.getPaginationInfo();
 
     const packages = await Promise.all(result.map(async (packageItem: IPackage) => {
-        const bookmark = await Bookmark.findOne({ customer: user.id, package: packageItem._id }).select("_id").lean().exec();
+        const bookmark = user?.id ?  await Bookmark.findOne({ customer: user.id, package: packageItem._id }).select("_id").lean().exec() : false;
         const averageRating = await calculateAverageRating(packageItem._id?.toString() as string);
         return {
             ...packageItem,
