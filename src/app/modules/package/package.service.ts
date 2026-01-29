@@ -82,7 +82,7 @@ const packageDetailsFromDB = async (id: string, user: JwtPayload): Promise<{ pac
         throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to get Package Details")
     }
 
-    const bookmark = await Bookmark.findOne({ customer: user.id, package: id }).select("_id").lean().exec();
+    const bookmark = id ? await Bookmark.findOne({ customer: user.id, package: id }).select("_id").lean().exec() : false;
     const averageRating = await calculateAverageRating(id);
     const reviews = await Review.find({ package: id }).populate("customer", "name profile").lean().exec();
     return {
