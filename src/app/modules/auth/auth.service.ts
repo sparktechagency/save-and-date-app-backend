@@ -67,7 +67,7 @@ const loginUserFromDB = async (payload: ILoginData) => {
     }
 
     // Generate OTP
-    const otp = 111111;
+    const otp = generateOTP();
     const authentication = {
         oneTimeCode: otp,
         expireAt: new Date(Date.now() + 5 * 60 * 1000)

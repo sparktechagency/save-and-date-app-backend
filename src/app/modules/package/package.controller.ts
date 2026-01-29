@@ -42,6 +42,15 @@ const vendorPackage = catchAsync(async (req: Request, res: Response) => {
 
 
 const getPackages = catchAsync(async (req: Request, res: Response) => {
+    if (req.headers.authorization) {
+        const verifyUser = jwtHelper.verifyToken(
+            req.headers.authorization,
+            config.jwt.jwt_secret as Secret
+        );
+
+        req.user = verifyUser as JwtPayload;
+    }
+
     const result = await PackageService.packagesFromDB(req.query);
 
     sendResponse(res, {

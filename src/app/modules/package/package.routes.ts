@@ -40,7 +40,6 @@ router.route("/")
     )
 
 router.get("/all",
-    auth(USER_ROLES.CUSTOMER, USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
     PackageController.getPackages
 )
 
