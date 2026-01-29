@@ -106,6 +106,7 @@ const verifyPhoneToDB = async (payload: IVerifyEmail & {fcmToken: string}) => {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Please give the otp, check your Phone we send a code');
     }
 
+    console.log(isExistUser.authentication?.oneTimeCode,  oneTimeCode)
 
     if (isExistUser.authentication?.oneTimeCode !== oneTimeCode) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'You provided wrong otp');
