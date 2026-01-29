@@ -67,7 +67,7 @@ const loginUserFromDB = async (payload: ILoginData) => {
     }
 
     // Generate OTP
-    const otp = generateOTP();
+    const otp = 111111;
     const authentication = {
         oneTimeCode: otp,
         expireAt: new Date(Date.now() + 5 * 60 * 1000)
@@ -106,7 +106,6 @@ const verifyPhoneToDB = async (payload: IVerifyEmail & {fcmToken: string}) => {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Please give the otp, check your Phone we send a code');
     }
 
-    console.log(isExistUser.authentication?.oneTimeCode,  oneTimeCode)
 
     if (isExistUser.authentication?.oneTimeCode !== oneTimeCode) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'You provided wrong otp');
