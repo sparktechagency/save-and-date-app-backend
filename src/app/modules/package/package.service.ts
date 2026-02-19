@@ -150,7 +150,7 @@ const retrievedPopularPackagesFromDB = async (user: JwtPayload): Promise<{ packa
     const pagination = await PackagesQuery.getPaginationInfo();
 
     const packages = await Promise.all(result.map(async (packageItem: IPackage) => {
-        const bookmark = await Bookmark.findOne({ customer: user.id, package: packageItem._id }).select("_id").lean().exec();
+        const bookmark = await Bookmark.findOne({ customer: user?.id, package: packageItem._id }).select("_id").lean().exec();
         const averageRating = await calculateAverageRating(packageItem._id?.toString() as string);
         return {
             ...packageItem,
